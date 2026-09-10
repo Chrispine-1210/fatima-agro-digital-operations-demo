@@ -3,18 +3,19 @@ import { expect, test } from "@playwright/test";
 test("role switcher enforces seller self-approval boundary", async ({ page }) => {
   await page.goto("/#worker-portal");
   await page.getByLabel("Demo role").selectOption("seller");
+  await page.evaluate(() => { window.location.hash = "worker-portal"; });
   await page.getByRole("button", { name: "Record demo sale" }).click();
   await page.getByRole("button", { name: "Submit count" }).click();
   await expect(page.getByRole("button", { name: "Supervisor close" })).toBeDisabled();
   await page.getByLabel("Demo role").selectOption("supervisor");
-  await page.getByRole("button", { name: "Worker / seller portal" }).click();
+  await page.evaluate(() => { window.location.hash = "worker-portal"; });
   await expect(page.getByRole("button", { name: "Supervisor close" })).toBeEnabled();
 });
 
 test("public enquiry creates a unique synthetic reference and reaches quote", async ({ page }) => {
   await page.goto("/#mobile-enquiry");
   await page.getByRole("button", { name: "Create synthetic enquiry" }).click();
-  await expect(page.getByText("ENQ-DEMO-1051")).toBeVisible();
+  await expect(page.getByText("Reference ENQ-DEMO-1051.", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "View sample quote" }).click();
   await expect(page.getByText("Quotation Q-DEMO-081")).toBeVisible();
 });

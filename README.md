@@ -10,6 +10,12 @@ A public, synthetic-data interactive concept and evidence prototype for Fatima A
 
 Use the role switcher in the header. It provides safe synthetic views for customer, seller, storekeeper, content editor, finance officer, supervisor, manager, system administrator and agent/dealer roles. It is an authorization demonstration, not real authentication. Temporary state can be reset at any time.
 
+## Responsive release evidence
+
+![Desktop management dashboard](docs/screenshots/dashboard-desktop.png)
+
+The same release candidate is captured and tested at [tablet](docs/screenshots/dashboard-tablet.png) and [mobile](docs/screenshots/dashboard-mobile.png) sizes. These images contain only synthetic demonstration records.
+
 ## Purpose
 
 The project demonstrates how public product discovery can connect to controlled customer service, sales, stock, cash, procurement, content and management workflows. It is designed for evaluation, requirements validation, training discussion and release-evidence review.
@@ -84,7 +90,7 @@ npm run audit:prod
 npm run scan:secrets
 ```
 
-CI runs linting, type checking, unit/workflow/release-boundary tests, production build, component tests, three responsive browser profiles, production dependency audit and secret scanning.
+CI runs linting, type checking, unit/workflow/release-boundary tests, production build, component tests, three responsive browser profiles, production dependency audit and secret scanning. See the [v1.0.0-demo release evidence](docs/RELEASE_EVIDENCE.md) for the gate record and screenshots.
 
 ## Public-data and security boundary
 

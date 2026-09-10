@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import Image from "next/image";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -273,6 +274,7 @@ export default function Home() {
   const [active, setActive] = useState<ScreenId>("dashboard");
   const [role, setRole] = useState<DemoRole>("administrator");
   const [publicPage, setPublicPage] = useState<PublicPage>("about");
+  const [hydrated, setHydrated] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const [catalogueSearch, setCatalogueSearch] = useState("");
   const [quantity, setQuantity] = useState(20);
@@ -289,24 +291,23 @@ export default function Home() {
   const [privacyRequest, setPrivacyRequest] = useState(false);
   const [supportRequest, setSupportRequest] = useState(false);
   const [agentStage, setAgentStage] = useState<"draft" | "review" | "approved">("draft");
-  const [notice, setNotice] = useState("Demo state is stored only for this browser session.");
+  const [notice, setNotice] = useState("Demo state is temporary and resets when this page is reloaded.");
 
   useEffect(() => {
-    const hash = window.location.hash.slice(1) as ScreenId;
-    if (allScreens.includes(hash)) setActive(hash);
-    const storedRole = window.sessionStorage.getItem("fatima-demo-role") as DemoRole | null;
-    if (storedRole && demoRoles.some((item) => item.id === storedRole)) setRole(storedRole);
     const handleHash = () => {
       const next = window.location.hash.slice(1) as ScreenId;
       if (allScreens.includes(next)) setActive(next);
     };
     window.addEventListener("hashchange", handleHash);
-    return () => window.removeEventListener("hashchange", handleHash);
+    const frame = window.requestAnimationFrame(() => {
+      handleHash();
+      setHydrated(true);
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", handleHash);
+    };
   }, []);
-
-  useEffect(() => {
-    window.sessionStorage.setItem("fatima-demo-role", role);
-  }, [role]);
 
   const downloadDemoFile = (filename: string, content: string, type = "text/csv") => {
     const link = document.createElement("a");
@@ -1051,7 +1052,7 @@ export default function Home() {
             </div>
           ))}
         </nav>
-        <div className="provider-lockup"><span>PROPOSED AND PREPARED BY</span><img src="/aothothe-logo.png" alt="Aothothe Technologies" /></div>
+        <div className="provider-lockup"><span>PROPOSED AND PREPARED BY</span><Image src="/aothothe-logo.png" alt="Aothothe Technologies" width={360} height={100} sizes="(max-width: 820px) 220px, 240px" unoptimized /></div>
         <div className="sidebar-note">All records and figures are synthetic for demonstration.</div>
       </aside>
 
@@ -1061,7 +1062,7 @@ export default function Home() {
         <header className="topbar">
           <button className="menu-button" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu /></button>
           <div className="prototype-label"><span /> Interactive evidence prototype — synthetic data only</div>
-          <div className="role-switcher"><label htmlFor="demo-role">Demo role</label><select id="demo-role" value={role} onChange={(event) => changeRole(event.target.value as DemoRole)}>{demoRoles.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><Button size="sm" variant="outline" onClick={resetDemo}><RefreshCcw /> Reset</Button></div>
+          <div className="role-switcher"><label htmlFor="demo-role">Demo role</label><select id="demo-role" value={role} disabled={!hydrated} data-ready={hydrated} onChange={(event) => changeRole(event.target.value as DemoRole)}>{demoRoles.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select><Button size="sm" variant="outline" onClick={resetDemo}><RefreshCcw /> Reset</Button></div>
         </header>
         <div className="page-wrap">
           <div className="release-strip"><span><ShieldCheck /> Public evidence build</span><span>v1.0.0-demo</span><span>Release date: 10 Sep 2026</span><span>Provider: Aothothe Technologies</span></div>
