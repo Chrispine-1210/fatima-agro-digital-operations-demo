@@ -4,3 +4,320 @@
 @media(max-width:1100px){.sf-header{padding:20px 25px;gap:20px}.sf-nav{gap:15px}.sf-header-actions{padding-left:15px;gap:12px}.sf-header-actions a>span{display:none}.sf-hero{padding:30px 25px}.sf-hero-copy{padding-right:5px}.sf-hero-photo{min-height:410px}.sf-hero h1{font-size:49px}.sf-section{padding:50px 25px}.sf-product-grid{gap:15px}.sf-about-band{padding:40px 30px;gap:35px;margin-inline:25px}.sf-service-strip{margin-inline:25px}.sf-card-body{padding:16px}.sf-card-body h3{font-size:16px}.sf-card-bottom strong{font-size:14px}.sf-feedback-band{margin-inline:25px}.sf-container{padding-inline:25px}.sf-checkout-grid{gap:20px;grid-template-columns:1fr 1fr}.sf-cart-line{grid-template-columns:1fr 65px}.sf-cart-line>b{text-align:left}.sf-footer-grid{gap:25px}}
 @media(max-width:800px){.sf-header{flex-wrap:wrap}.sf-brand b{font-size:22px}.sf-header-actions{margin-left:auto}.sf-menu-toggle{display:block;order:3}.sf-nav{display:none;order:4;width:100%;margin:10px 0 0;border-top:1px solid var(--sf-line);padding-top:15px;flex-wrap:wrap;gap:20px}.sf-nav.sf-nav-open{display:flex}.sf-hero{grid-template-columns:1fr 1fr;gap:20px}.sf-hero h1{font-size:39px}.sf-hero p{font-size:14px}.sf-hero-photo{min-height:400px}.sf-hero-copy{padding-block:15px}.sf-hero-photo>div{left:15px;right:15px;bottom:15px;padding:12px;font-size:11px}.sf-hero-points{gap:8px}.sf-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.sf-service-strip>div{padding-inline:10px;gap:8px}.sf-service-strip b{font-size:11px}.sf-service-strip small{font-size:9px}.sf-service-strip svg{width:22px;height:22px}.sf-about-band h2{font-size:28px}.sf-guide-grid{gap:20px}.sf-guide h3{font-size:19px}.sf-section-heading{align-items:flex-start}.sf-feedback-band{padding:30px;flex-direction:column;align-items:flex-start}.sf-footer-grid{grid-template-columns:1.5fr 1fr;gap:30px}.sf-product-detail{gap:30px}.sf-product-detail h1{font-size:32px}.sf-filterbar{flex-wrap:wrap}.sf-filterbar label.sf-search{flex-basis:100%}.sf-filterbar label{min-width:0;flex:1}.sf-checkout-grid{grid-template-columns:1fr}.sf-panel{margin:12px 0;padding:24px}.sf-account-summary{grid-template-columns:1fr 1fr}.sf-account-summary>div:last-child{grid-column:1/-1}.sf-three-columns{grid-template-columns:1fr}.sf-container .sf-section{padding-inline:0}.sf-container .sf-about-band{margin-inline:0}.sf-container .sf-about-band{grid-template-columns:1fr}.sf-order-row{flex-wrap:wrap}.sf-order-row>div{flex-basis:100%}}
 @media(max-width:560px){.sf-header{padding:16px 18px;gap:14px}.sf-brand small{font-size:8px}.sf-brand>span{width:35px;height:41px}.sf-header-actions{padding-left:10px;gap:12px}.sf-hero{grid-template-columns:1fr;padding:30px 20px 24px}.sf-hero-copy{padding:12px 0 15px}.sf-hero h1{font-size:43px;max-width:380px;margin-bottom:20px}.sf-hero p{font-size:15px}.sf-hero-photo{min-height:300px;max-height:330px;aspect-ratio:1.3;border-radius:4px 4px 40px 4px}.sf-hero-points{font-size:10px;gap:15px}.sf-service-strip{margin-inline:20px;grid-template-columns:1fr;padding:10px 0}.sf-service-strip>div{justify-content:flex-start;padding:14px 10px;border-right:0;border-bottom:1px solid var(--sf-line);gap:15px}.sf-service-strip small{font-size:11px}.sf-service-strip b{font-size:13px}.sf-section{padding:40px 20px}.sf-section-heading{flex-direction:column;gap:12px;margin-bottom:24px}.sf-section h2{font-size:29px}.sf-product-grid{gap:12px}.sf-card-body{padding:13px}.sf-card-body h3{font-size:16px}.sf-card-body>small{font-size:9px}.sf-stock{font-size:9px;margin-bottom:15px}.sf-card-bottom strong{font-size:13px}.sf-icon-button{width:31px;height:34px}.sf-product-photo>img{padding:10px}.sf-product-photo>small{font-size:8px}.sf-about-band{grid-template-columns:1fr;gap:35px;padding:35px 24px;margin-inline:20px}.sf-about-band h2{font-size:29px}.sf-guide-grid{grid-template-columns:1fr;gap:35px}.sf-guide img{max-height:240px}.sf-guide h3{font-size:23px}.sf-feedback-band{margin-inline:20px;margin-bottom:40px;padding:27px}.sf-footer{padding:35px 20px 0}.sf-footer-grid{grid-template-columns:1fr 1fr;gap:30px 20px}.sf-footer-grid>div:first-child{grid-column:1/-1}.sf-footer-bottom{flex-direction:column;gap:5px;margin-top:25px}.sf-container{padding:25px 20px 50px}.sf-page-heading h1{font-size:35px}.sf-page-heading{padding-bottom:20px}.sf-product-detail{grid-template-columns:1fr;gap:28px}.sf-photo-large{max-height:390px}.sf-product-detail h1{font-size:34px}.sf-breadcrumb{font-size:11px}.sf-panel{padding:20px}.sf-account-summary{gap:12px}.sf-account-summary>div{padding:18px}.sf-tabs button{padding:12px 15px}.sf-filterbar{padding:15px;gap:12px}.sf-checkout-grid{gap:12px}.sf-summary-line{font-size:12px}.sf-presentation-bar{font-size:10px}.sf-message{font-size:12px}.sf-header-actions svg{width:19px;height:19px}.sf-status-container{top:5px}}
+
+/* Public customer help, service, careers and feedback layouts. */
+.storefront :is(a, button):focus-visible {
+  outline: 2px solid var(--sf-green);
+  outline-offset: 3px;
+}
+#enquiry-form {
+  scroll-margin-top: 32px;
+}
+.sf-help-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .9fr);
+  gap: 30px;
+  align-items: start;
+}
+.sf-help-grid > *,
+.sf-help-sidebar > *,
+.sf-service-cards > * {
+  min-width: 0;
+}
+.sf-enquiry-card,
+.sf-help-sidebar .sf-panel {
+  margin: 0;
+}
+.sf-help-sidebar {
+  display: grid;
+  gap: 18px;
+}
+.sf-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  color: var(--sf-green);
+  background: #eff2e7;
+  border: 1px solid #dce3d4;
+  border-radius: 4px;
+  margin-bottom: 18px;
+}
+.sf-help-card h2,
+.sf-help-card h3 {
+  margin: 0 0 12px;
+}
+.sf-help-card p:last-child {
+  margin-bottom: 0;
+}
+.sf-place-card .sf-eyebrow {
+  margin-bottom: 9px;
+}
+.sf-place-card h2 {
+  font-size: clamp(25px, 2.4vw, 30px);
+  margin-bottom: 14px;
+}
+.sf-help-details {
+  padding-top: 18px;
+  margin-top: 20px;
+  border-top: 1px solid var(--sf-line);
+}
+.sf-help-details .sf-text-link {
+  white-space: normal;
+}
+.sf-service-intro {
+  max-width: 650px;
+  margin-bottom: 28px;
+}
+.sf-service-intro h2 {
+  margin-bottom: 14px;
+}
+.sf-service-intro p {
+  margin-bottom: 0;
+}
+.sf-service-cards {
+  align-items: stretch;
+}
+.sf-service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+}
+.sf-service-number {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #577352;
+  margin-bottom: 24px;
+}
+.sf-service-card h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+.sf-service-card p {
+  margin-bottom: 24px;
+}
+.sf-service-card > :is(a, .sf-actions) {
+  margin-top: auto;
+}
+.sf-service-card .sf-text-link {
+  white-space: normal;
+  min-height: 44px;
+}
+.sf-career-card {
+  max-width: 850px;
+  margin: 0;
+  padding: 36px;
+}
+.sf-career-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.sf-career-status .sf-card-icon {
+  margin-bottom: 0;
+}
+.sf-career-status .sf-badge {
+  white-space: normal;
+}
+.sf-career-card h2 {
+  margin: 0 0 14px;
+  font-size: clamp(25px, 2.6vw, 32px);
+}
+.sf-career-body {
+  max-width: 640px;
+}
+.sf-career-body p,
+.sf-career-card > p {
+  max-width: 640px;
+}
+.sf-career-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  border-block: 1px solid var(--sf-line);
+  margin: 26px 0;
+  padding: 22px 0;
+}
+.sf-career-details > div {
+  min-width: 0;
+}
+.sf-career-details dt {
+  font-size: 11px;
+  color: var(--sf-muted);
+  margin-bottom: 7px;
+}
+.sf-career-details dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sf-safety-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--sf-muted);
+  border-top: 1px solid var(--sf-line);
+  padding-top: 20px;
+  margin-top: 26px;
+}
+.sf-safety-note > svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--sf-green);
+}
+.sf-safety-note p {
+  font-size: 12px;
+  margin: 0;
+}
+.sf-feedback-layout > .sf-panel {
+  margin: 0;
+}
+.sf-feedback-invite h2 {
+  margin: 0 0 14px;
+}
+.sf-feedback-steps {
+  list-style: decimal;
+  margin: 22px 0 26px;
+  padding-left: 22px;
+  color: var(--sf-muted);
+  font-size: 13px;
+}
+.sf-feedback-steps li {
+  padding-left: 5px;
+  margin: 0 0 12px;
+}
+.sf-feedback-steps li:last-child {
+  margin-bottom: 0;
+}
+.sf-feedback-steps li::marker {
+  color: var(--sf-green);
+  font-weight: 700;
+}
+.sf-feedback-steps strong,
+.sf-feedback-steps b {
+  color: var(--sf-ink);
+}
+.sf-review-list {
+  display: grid;
+  gap: 16px;
+}
+.sf-review-list .sf-panel {
+  margin: 0;
+}
+.sf-review-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.sf-review-card header h3 {
+  margin: 0;
+}
+.sf-review-card header h2 {
+  margin: 0;
+}
+.sf-feedback-invite {
+  grid-column: 2;
+  grid-row: 1;
+}
+.sf-feedback-layout > .sf-review-list {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sf-help-card .sf-text-link,
+.sf-feedback-layout .sf-text-link {
+  min-height: 44px;
+  white-space: normal;
+}
+.sf-container .sf-service-section {
+  padding-inline: 0;
+}
+.sf-review-card time,
+.sf-review-card > small {
+  display: block;
+  color: var(--sf-muted);
+  font-size: 11px;
+}
+.sf-review-card p {
+  overflow-wrap: anywhere;
+}
+.sf-feedback-empty {
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid var(--sf-line);
+  background: white;
+  margin: 0;
+  padding: 28px;
+}
+.sf-feedback-empty h2 {
+  margin: 0 0 12px;
+}
+.sf-feedback-empty p {
+  max-width: 460px;
+}
+.sf-inline-note {
+  display: block;
+  color: var(--sf-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+.sf-help-grid .sf-btn,
+.sf-service-cards .sf-btn,
+.sf-career-card .sf-btn {
+  min-height: 44px;
+}
+@media (max-width: 800px) {
+  .sf-feedback-invite,
+  .sf-feedback-layout > .sf-review-list {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .sf-help-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .sf-service-card {
+    padding: 26px;
+  }
+}
+@media (max-width: 560px) {
+  .sf-help-grid {
+    gap: 20px;
+  }
+  .sf-help-sidebar {
+    gap: 16px;
+  }
+  .sf-career-card {
+    padding: 24px;
+  }
+  .sf-career-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .sf-help-grid .sf-actions,
+  .sf-service-cards .sf-actions,
+  .sf-career-card .sf-actions {
+    width: 100%;
+  }
+  .sf-help-grid .sf-actions .sf-btn,
+  .sf-service-cards .sf-actions .sf-btn,
+  .sf-career-card .sf-actions .sf-btn {
+    width: 100%;
+  }
+  .sf-feedback-empty {
+    padding: 24px;
+  }
+}
