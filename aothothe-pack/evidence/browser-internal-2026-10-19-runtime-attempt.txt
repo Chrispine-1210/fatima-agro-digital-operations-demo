@@ -1,0 +1,50 @@
+
+Running 1 test using 1 worker
+
+node.exe : (node:29268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:2 char:495
++ ... ttempt.txt; & 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformati ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:29268) Wa... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys (1.0m)
+
+
+  1) tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys › HR forms complete onboarding, leave approval, attendance and payroll preparation 
+
+    Error: Your worker restarted mid-request. Please try sending the request again. Only GET or HEAD requests are retried automatically.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      23 | async function submit(page: Page, target: Locator, name: string) {
+      24 |   const [response] = await Promise.all([page.waitForResponse(result => result.url().includes("/api/portal") && result.request().method() === "POST"), target.getByRole("button", { name, exact: true }).click()]);
+    > 25 |   expect(response.ok(), await response.text()).toBeTruthy();
+         |                                                ^
+      26 |   await expect(target.locator(".ip-success")).toBeVisible();
+      27 |   await expect(target.locator(".ip-error")).toHaveCount(0);
+      28 | }
+        at submit (C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:25:48)
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:145:7
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:129:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys 

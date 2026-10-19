@@ -1,0 +1,92 @@
+
+Running 3 tests using 1 worker
+
+node.exe : (node:24568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:2 char:274
++ ... .0.1:5173'; & 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformati ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:24568) Wa... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  x  1 tests\e2e\customer.spec.ts:7:1 › customer registers, browses, checks out and tracks only own persistent orders (25.8s)
+(node:5844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 2 tests\e2e\customer.spec.ts:34:1 › public direct routes, responsive layouts, source credits and image fallback (14.8s)
+  x  3 tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys (17.2s)
+
+
+  1) tests\e2e\customer.spec.ts:7:1 › customer registers, browses, checks out and tracks only own persistent orders 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Review your requirements.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Review your requirements.' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Review your requirements.' })
+
+
+      20 |  await page.getByRole('link',{name:'Maize seed',exact:true}).click();await expect(page.getByRole('heading',{name:'Maize seed',exact:true})).toBeVisible();
+      21 |  await page.getByLabel('Quantity',{exact:true}).fill('2');await page.getByRole('button',{name:'Add to cart',exact:true}).click();await expect(page.getByRole('status')).toContainText('saved');
+    > 22 |  await page.getByRole('link',{name:'Cart, 2 items'}).click();await expect(page.getByRole('heading',{name:'Review your requirements.'})).toBeVisible();
+         |                                                                                                                                         ^
+      23 |  await page.getByLabel('How would you like to receive your order?').selectOption('delivery-request');await page.getByLabel('Town or area').fill('Lilongwe demonstration area');await page.getByLabel('Delivery address (required for delivery requests)').fill('Sample address for presentation only');await page.getByRole('checkbox',{name:'I understand this is a demonstration request'}).check();
+      24 |  await page.getByRole('button',{name:'Submit order request'}).click();await expect(page).toHaveURL(/\/account\/orders\/ORD-DEMO-/);
+      25 |  await expect(page.getByText('Awaiting confirmation',{exact:true}).first()).toBeVisible();const orderUrl=page.url();await page.reload();await expect(page.getByRole('heading',{name:'Order progress'})).toBeVisible();
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\customer.spec.ts:22:137
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\playwright\customer-customer-register-37323--only-own-persistent-orders\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\playwright\customer-customer-register-37323--only-own-persistent-orders\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\playwright\customer-customer-register-37323--only-own-persistent-orders\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\playwright\customer-customer-register-37323--only-own-persistent-orders\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys › finance forms persist invoices, payments, receipts, expenses and bills 
+
+    TimeoutError: locator.selectOption: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('form', { name: 'Record an invoice', exact: true }).getByLabel('Customer', { exact: true })
+
+
+      48 |     await expect(page.getByRole("heading", { name: "Accounting", exact: true })).toBeVisible();
+      49 |     const invoiceForm = form(page, "Record an invoice");
+    > 50 |     await invoiceForm.getByLabel("Customer", { exact: true }).selectOption("local-customer-a");
+         |                                                               ^
+      51 |     await invoiceForm.getByLabel("Invoice total (MWK)", { exact: true }).fill("100000");
+      52 |     await invoiceForm.getByLabel("Tax included (MWK)", { exact: true }).fill("0");
+      53 |     await invoiceForm.getByLabel("Due date", { exact: true }).fill("2026-10-19");
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:50:63
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:45:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests\e2e\customer.spec.ts:7:1 › customer registers, browses, checks out and tracks only own persistent orders 
+    tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys 
+  1 passed (1.2m)

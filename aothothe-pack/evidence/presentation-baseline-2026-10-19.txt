@@ -1,0 +1,7 @@
+Fatima Agro presentation baseline
+Verified at: 2026-10-19T05:07:58.429Z
+Result: PASS
+Scope: explicitly synthetic local rehearsal only.
+Reset followed successful isolated recovery verification. Hosted data was not reset.
+{"productCount":6,"maizeStock":142,"invoices":0,"payments":0,"campaigns":0,"ledgerBalanced":true}
+Approved account assignments were preserved; no session credential is included.

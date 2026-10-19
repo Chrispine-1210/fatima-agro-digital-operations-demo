@@ -1,0 +1,42 @@
+✔ hosted bootstrap defaults to customers and only explicit distinct allowlists grant authority (99.3199ms)
+✔ initial authority can be provisioned once for an existing customer and cannot undo later demotion (1042.5681ms)
+✔ normal sign-in preserves approved persisted roles and local personas never bootstrap hosted authority (910.5248ms)
+✔ anonymous and customer requests cannot read confidential modules or perform staff actions (142.2623ms)
+✔ administrator has security administration but cannot authorize routine business work or self-escalate (66.5351ms)
+✔ customer catalogue selects actual products; checkout atomically reserves stock and creates invoice and notifications (39.7245ms)
+✔ duplicate checkout key returns the original order without creating more stock movement or ledger entries (49.56ms)
+✔ invalid checkout and out-of-stock cart do not partially commit records (32.064ms)
+✔ customer ownership is enforced on all snapshots and order review actions (46.834ms)
+✔ payments, credit notes, expenses and independent reconciliation derive a balanced ledger (79.3883ms)
+✔ a payment preparer cannot reconcile their own payment and mismatches remain open (60.066ms)
+✔ procurement connects supplier, independently approved request, PO, partial GRN, stock and supplier bill (33.4191ms)
+✔ branch data and writes are scoped to their assigned unit and approved function (52.9383ms)
+✔ HR completes onboarding, independent leave review, attendance and preparation-only payroll (50.103ms)
+✔ HR refuses own review, real employee emails, impossible dates and overlapping leave (30.5149ms)
+✔ campaigns preview, dedupe recipients, suppress unsubscribed users and never report delivery (28.0653ms)
+✔ scheduled campaigns cannot capture early; processDue captures only due campaigns (15.393ms)
+✔ task and unit approvals identify independent people instead of merely different roles (19.7094ms)
+✔ public snapshots omit all private data and review publication requires independent moderation (16.3255ms)
+✔ local reset is restricted, auditable, reproducible and preserves approved accounts (14.3701ms)
+✔ configurable demonstration tax preserves historical invoices and balances credits (24.2913ms)
+✔ enquiry and support responses reach only the owning customer and stay within branch scope (20.9565ms)
+✔ public feedback requires explicit publication consent and director access reviews omit unrelated personnel (22.4213ms)
+✔ applied access approvals cannot replay a previous elevation after an approved demotion (19.9147ms)
+✔ collection and delivery follow only their matching paid fulfilment route (95.0553ms)
+✔ inactive or unapproved fulfilment units reject cart, checkout and staff fulfilment atomically (21.1231ms)
+✔ full credit cannot fulfil an order and unpaid credited cancellations release stock once without double credits (94.0842ms)
+✔ public and customer product responses whitelist catalogue fields and exclude internal tax references and reorder rules (3.0617ms)
+✔ branch role notifications disclose only their unit and cannot be marked read across branches (22.979ms)
+✔ release excludes private source packs, local session secrets and runtime state (53.1479ms)
+✔ hosting declares durable DB and preserves existing Site identity (51.3018ms)
+✔ creates unique, explicitly synthetic references (8.3919ms)
+✔ enforces seller and supervisor separation of duties (1.5964ms)
+✔ requires finance or management for deposit and reconciliation (1.0675ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21047.5826

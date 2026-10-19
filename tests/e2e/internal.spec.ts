@@ -1,0 +1,302 @@
+import { expect, test, type Locator, type Page } from "@playwright/test";
+import type { PortalSnapshot } from "../../lib/portal-types";
+
+const origin = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:5173";
+const headers = { Origin: new URL(origin).origin };
+const form = (page: Page, heading: string) => page.getByRole("form", { name: heading, exact: true });
+
+async function persona(page: Page, name: string) {
+  const response = await page.request.post("/api/session", { headers, data: { persona: name } });
+  expect(response.ok(), await response.text()).toBeTruthy();
+}
+async function action(page: Page, name: string, data: Record<string, unknown> = {}) {
+  const response = await page.request.post("/api/portal", { headers, data: { action: name, data } });
+  const body = await response.json();
+  expect(response.ok(), JSON.stringify(body)).toBeTruthy();
+  return body.result;
+}
+async function snapshot(page: Page, module: string): Promise<PortalSnapshot> {
+  const response = await page.request.get(`/api/portal?module=${module}`);
+  expect(response.ok(), await response.text()).toBeTruthy();
+  return await response.json() as PortalSnapshot;
+}
+async function submit(page: Page, target: Locator, name: string) {
+  const [response] = await Promise.all([page.waitForResponse(result => result.url().includes("/api/portal") && result.request().method() === "POST"), target.getByRole("button", { name, exact: true }).click()]);
+  expect(response.ok(), await response.text()).toBeTruthy();
+  await expect(target.locator(".ip-success")).toBeVisible();
+  await expect(target.locator(".ip-error")).toHaveCount(0);
+}
+
+test("internal roles complete accounting, HR, procurement and captured communication journeys", async ({ page }, testInfo) => {
+  test.setTimeout(240_000);
+  // Each project starts with its own reset. Run with one worker because the demonstration store is shared.
+  await persona(page, "administrator");
+  await action(page, "admin.reset", { confirmation: "RESET SYNTHETIC DEMONSTRATION" });
+  await persona(page, "customer-a");
+  await action(page, "customer.register", { name: "Sample Workflow Customer", phone: "TEST-CONTACT", address: "Demonstration collection", marketingConsent: true });
+  await action(page, "cart.set", { productId: "demo-maize", quantity: 1 });
+  const customerOrder = await action(page, "checkout", { method: "collection", name: "Sample Workflow Customer", phone: "TEST-CONTACT", address: "", area: "", notes: "Browser verification request", idempotencyKey: `internal-browser-${testInfo.project.name}` });
+  const enquiry = await action(page, "enquiry.create", { name: "Sample Workflow Customer", email: "customer-a@example.test", phone: "", subject: "Browser sample stock enquiry", productId: "demo-maize", quantity: 1, message: "Please confirm the sample collection process." });
+  const support = await action(page, "support.create", { subject: "Browser sample account support", message: "Where can I see my collection update?" });
+  const review = await action(page, "review.create", { orderId: customerOrder.id, rating: 4, name: "Sample Reviewer", text: "Demonstration account walkthrough feedback.", publicationConsent: true });
+  await persona(page, "procurement");
+  const serviceSupplier = await action(page, "procurement.supplier", { name: "Sample Service Vendor", email: "service-vendor@example.test", contact: "TEST-REFERENCE" });
+
+  await test.step("finance forms persist invoices, payments, receipts, expenses and bills", async () => {
+    await persona(page, "finance");
+    await page.goto("/hq/finance");
+    await expect(page.getByRole("heading", { name: "Accounting", exact: true })).toBeVisible();
+    const invoiceForm = form(page, "Record an invoice");
+    await invoiceForm.getByLabel("Customer", { exact: true }).selectOption("local-customer-a");
+    await invoiceForm.getByLabel("Invoice total (MWK)", { exact: true }).fill("100000");
+    await invoiceForm.getByLabel("Tax included (MWK)", { exact: true }).fill("0");
+    await invoiceForm.getByLabel("Due date", { exact: true }).fill("2026-10-19");
+    await invoiceForm.getByLabel("Description", { exact: true }).fill("Browser sample supply invoice");
+    await submit(page, invoiceForm, "Save record");
+    let data = await snapshot(page, "finance");
+    const invoice = data.invoices!.find(item => item.note === "Browser sample supply invoice")!;
+    expect(invoice).toBeTruthy();
+    await expect(page.getByRole("table", { name: "Customer invoice register" }).getByText(invoice.id, { exact: true })).toBeVisible();
+    const payment = form(page, "Capture a customer payment");
+    for (const [referenceId, amount] of [[invoice.id, "100000"], [customerOrder.invoiceId, String(customerOrder.total)]]) {
+      await payment.getByLabel("Invoice", { exact: true }).selectOption(referenceId);
+      await payment.getByLabel("Amount (MWK)", { exact: true }).fill(amount);
+      await payment.getByLabel("Method", { exact: true }).selectOption("Cash demonstration");
+      await payment.getByLabel("Evidence reference").fill(`TEST-PAYMENT-${referenceId}`);
+      await submit(page, payment, "Capture payment");
+    }
+    data = await snapshot(page, "finance");
+    expect(data.receipts!.some(item => item.invoiceId === invoice.id && item.amount === 100000)).toBeTruthy();
+    await expect(page.getByRole("table", { name: "Numbered customer receipts" }).getByText(invoice.id, { exact: true })).toBeVisible();
+    const bill = form(page, "Record a supplier bill");
+    await bill.getByLabel("Supplier", { exact: true }).selectOption(serviceSupplier.id);
+    await bill.getByLabel("Bill total (MWK)", { exact: true }).fill("30000");
+    await bill.getByLabel("Description", { exact: true }).fill("Browser sample supplier bill");
+    await submit(page, bill, "Save record");
+    data = await snapshot(page, "finance");
+    const createdBill = data.bills!.find(item => item.note === "Browser sample supplier bill")!;
+    await page.getByRole("button", { name: "Supplier payment", exact: true }).click();
+    const supplierPayment = form(page, "Capture a supplier payment");
+    await supplierPayment.getByLabel("Bill", { exact: true }).selectOption(createdBill.id);
+    await supplierPayment.getByLabel("Amount (MWK)", { exact: true }).fill("5000");
+    await supplierPayment.getByLabel("Method", { exact: true }).selectOption("Bank transfer demonstration");
+    await supplierPayment.getByLabel("Evidence reference").fill("TEST-SUPPLIER-PAYMENT");
+    await submit(page, supplierPayment, "Capture payment");
+    const expense = form(page, "Record an expense");
+    await expense.getByLabel("Category", { exact: true }).selectOption("Transport");
+    await expense.getByLabel("Description", { exact: true }).fill("Browser sample transport expense");
+    await expense.getByLabel("Amount (MWK)", { exact: true }).fill("2000");
+    await expense.getByLabel("Evidence reference").fill("TEST-EXPENSE");
+    await submit(page, expense, "Save record");
+    await expect(page.getByRole("table", { name: "Expense register" }).getByText("Browser sample transport expense", { exact: true })).toBeVisible();
+    const statement = form(page, "Add a statement line");
+    await statement.getByLabel("Statement reference", { exact: true }).fill("TEST-STATEMENT-IN");
+    await statement.getByLabel("Amount (MWK)", { exact: true }).fill("100000");
+    await statement.getByLabel("Direction", { exact: true }).selectOption("in");
+    await statement.getByLabel("Statement date", { exact: true }).fill("2026-10-17");
+    await submit(page, statement, "Save record");
+    // A second invoice supplies an unpaid balance for the director's credit note.
+    await invoiceForm.getByLabel("Customer", { exact: true }).selectOption("local-customer-a");
+    await invoiceForm.getByLabel("Invoice total (MWK)", { exact: true }).fill("50000");
+    await invoiceForm.getByLabel("Tax included (MWK)", { exact: true }).fill("0");
+    await invoiceForm.getByLabel("Due date", { exact: true }).fill("2026-10-19");
+    await invoiceForm.getByLabel("Description", { exact: true }).fill("Browser sample credit invoice");
+    await submit(page, invoiceForm, "Save record");
+    data = await snapshot(page, "finance");
+    const paymentRecord = data.payments!.find(item => item.referenceId === invoice.id)!;
+    const statementRecord = data.statementLines!.find(item => item.reference === "TEST-STATEMENT-IN")!;
+    const creditInvoice = data.invoices!.find(item => item.note === "Browser sample credit invoice")!;
+    await persona(page, "finance-director");
+    await page.goto("/hq/finance");
+    const match = form(page, "Match payment evidence");
+    await match.getByLabel("Unmatched statement line", { exact: true }).selectOption(statementRecord.id);
+    await match.getByLabel("Unmatched payment", { exact: true }).selectOption(paymentRecord.id);
+    await submit(page, match, "Match records");
+    const credit = form(page, "Issue a credit note");
+    await credit.getByLabel("Invoice", { exact: true }).selectOption(creditInvoice.id);
+    await credit.getByLabel("Amount (MWK)", { exact: true }).fill("5000");
+    await credit.getByLabel("Reason", { exact: true }).fill("Browser sample partial credit");
+    await submit(page, credit, "Save record");
+    await expect(page.getByRole("table", { name: "Statement reconciliation" }).getByText("Matched", { exact: true })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Credit note register" }).getByText("Browser sample partial credit", { exact: true })).toBeVisible();
+    expect((await snapshot(page, "finance")).reports!.balanced).toBeTruthy();
+    await page.getByRole("heading", { name: "Accounting", exact: true }).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath("internal-accounting.png") });
+    await page.reload();
+    await expect(page.getByRole("table", { name: "Credit note register" }).getByText("Browser sample partial credit", { exact: true })).toBeVisible();
+  });
+
+  await test.step("HR forms complete onboarding, leave approval, attendance and payroll preparation", async () => {
+    await persona(page, "hr");
+    await page.goto("/hq/hr");
+    const employeeForm = form(page, "Add a demonstration employee");
+    await employeeForm.getByLabel("Employee name", { exact: true }).fill("Sample Browser Employee");
+    await employeeForm.getByLabel("Role title", { exact: true }).fill("Demonstration store assistant");
+    await employeeForm.getByLabel("Operating unit", { exact: true }).selectOption("BR-DEMO-01");
+    await employeeForm.getByLabel("Work email").fill("browser-employee@example.test");
+    await employeeForm.getByLabel("Start date", { exact: true }).fill("2026-10-17");
+    await employeeForm.getByLabel("Gross monthly pay (MWK)", { exact: true }).fill("200000");
+    await submit(page, employeeForm, "Save record");
+    const employee = (await snapshot(page, "hr")).employees!.find(item => item.workEmail === "browser-employee@example.test")!;
+    const onboarding = form(page, "Complete an onboarding check");
+    for (const check of ["Identity verification", "Contract review", "Safety induction", "System access review"]) {
+      await onboarding.getByLabel("Employee", { exact: true }).selectOption(employee.id);
+      await onboarding.getByLabel("Completed check", { exact: true }).selectOption(check);
+      await submit(page, onboarding, "Record completed check");
+    }
+    await expect(page.getByRole("table", { name: "Restricted employee register" }).getByText("Active", { exact: true })).toBeVisible();
+    const leave = form(page, "Request leave");
+    await leave.getByLabel("Employee", { exact: true }).selectOption(employee.id);
+    await leave.getByLabel("From", { exact: true }).fill("2026-10-20");
+    await leave.getByLabel("To", { exact: true }).fill("2026-10-22");
+    await leave.getByLabel("Reason", { exact: true }).fill("Browser sample leave request");
+    await submit(page, leave, "Submit request");
+    const attendance = form(page, "Record attendance");
+    await attendance.getByLabel("Employee", { exact: true }).selectOption(employee.id);
+    await attendance.getByLabel("Date", { exact: true }).fill("2026-10-17");
+    await attendance.getByLabel("Attendance", { exact: true }).selectOption("Present");
+    await submit(page, attendance, "Save record");
+    const payroll = form(page, "Prepare a payroll summary");
+    await payroll.getByLabel("Pay period", { exact: true }).fill("2026-10");
+    await payroll.getByLabel("Employees").selectOption([employee.id]);
+    await payroll.getByLabel("Reviewed total deductions (MWK)", { exact: true }).fill("10000");
+    await submit(page, payroll, "Prepare summary");
+    const data = await snapshot(page, "hr");
+    expect(data.payrollPreparations![0].net).toBe(190000);
+    expect(data.payrollPreparations![0].status).toBe("Prepared only");
+    const leaveId = data.leaveRequests![0].id;
+    await persona(page, "hr-director");
+    await page.goto("/hq/hr");
+    const decision = form(page, "Review leave");
+    await decision.getByLabel("Pending leave request", { exact: true }).selectOption(leaveId);
+    await decision.getByLabel("Decision", { exact: true }).selectOption("Approved");
+    await submit(page, decision, "Record decision");
+    await expect(page.getByRole("table", { name: "Leave register" }).getByText("Approved", { exact: true })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Payroll preparation register" }).getByText("Prepared only", { exact: true })).toBeVisible();
+    await page.getByRole("heading", { name: "People and HR", exact: true }).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath("internal-hr.png") });
+  });
+
+  await test.step("purchase forms independently approve and receive goods into branch inventory", async () => {
+    await persona(page, "procurement");
+    await page.goto("/hq/procurement");
+    const supplier = form(page, "Add a demonstration supplier");
+    await supplier.getByLabel("Supplier name", { exact: true }).fill("Sample Input Vendor");
+    await supplier.getByLabel("Email", { exact: true }).fill("input-vendor@example.test");
+    await supplier.getByLabel("Contact reference", { exact: true }).fill("TEST-SUPPLIER");
+    await submit(page, supplier, "Save record");
+    let data = await snapshot(page, "procurement");
+    const supplierId = data.suppliers!.find(item => item.name === "Sample Input Vendor")!.id;
+    const stockBefore = data.products!.find(item => item.id === "demo-maize")!.stock;
+    const request = form(page, "Request stock");
+    await request.getByLabel("Product", { exact: true }).selectOption("demo-maize");
+    await request.getByLabel("Quantity", { exact: true }).fill("5");
+    await request.getByLabel("Operating unit", { exact: true }).selectOption("BR-DEMO-01");
+    await request.getByLabel("Needed by", { exact: true }).fill("2026-10-19");
+    await request.getByLabel("Evidence reference").fill("TEST-STOCK-NEED");
+    await submit(page, request, "Submit purchase request");
+    const requestId = (await snapshot(page, "procurement")).purchaseRequests![0].id;
+    await persona(page, "operations-director");
+    await page.goto("/hq/procurement");
+    const approval = form(page, "Review a purchase request");
+    await approval.getByLabel("Pending request", { exact: true }).selectOption(requestId);
+    await approval.getByLabel("Decision", { exact: true }).selectOption("Approved");
+    await submit(page, approval, "Record decision");
+    await persona(page, "procurement");
+    await page.goto("/hq/procurement");
+    const purchaseOrder = form(page, "Create a purchase order");
+    await purchaseOrder.getByLabel("Approved request", { exact: true }).selectOption(requestId);
+    await purchaseOrder.getByLabel("Supplier", { exact: true }).selectOption(supplierId);
+    await purchaseOrder.getByLabel("Price per unit (MWK)", { exact: true }).fill("1000");
+    await submit(page, purchaseOrder, "Create demonstration order");
+    const poId = (await snapshot(page, "procurement")).purchaseOrders![0].id;
+    await persona(page, "storekeeper");
+    await page.goto("/hq/procurement");
+    const receiving = form(page, "Record goods received");
+    await receiving.getByLabel("Open purchase order", { exact: true }).selectOption(poId);
+    await receiving.getByLabel("Quantity received", { exact: true }).fill("5");
+    await receiving.getByLabel("Evidence reference").fill("TEST-GOODS-RECEIVED");
+    await submit(page, receiving, "Receive and update stock");
+    data = await snapshot(page, "procurement");
+    expect(data.products!.find(item => item.id === "demo-maize")!.stock).toBe(stockBefore + 5);
+    expect(data.goodsReceipts![0].quantity).toBe(5);
+    expect(data.purchaseOrders![0].status).toBe("Received");
+    await expect(page.getByRole("table", { name: "Purchase order register" }).getByRole("cell", { name: "Received", exact: true })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Goods received register" }).getByText("TEST-GOODS-RECEIVED", { exact: true })).toBeVisible();
+    await page.getByRole("heading", { name: "Orders, procurement and stock", exact: true }).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath("internal-procurement.png") });
+    await persona(page, "finance");
+    expect((await snapshot(page, "finance")).bills!.some(item => item.purchaseOrderId === poId && item.total === 5000)).toBeTruthy();
+  });
+
+  await test.step("sales forms update tracking and respond to customer enquiries and support", async () => {
+    await persona(page, "sales");
+    await page.goto("/hq/procurement");
+    const tracking = form(page, "Update customer tracking");
+    await tracking.getByLabel("Next status", { exact: true }).selectOption("Confirmed");
+    await tracking.getByLabel("Customer tracking note").fill("Your sample collection request is confirmed.");
+    await submit(page, tracking, "Update order status");
+    const enquiryForm = form(page, "Respond to an enquiry");
+    await enquiryForm.getByLabel("Customer enquiry", { exact: true }).selectOption(enquiry.id);
+    await enquiryForm.getByLabel("Customer response").fill("Sample stock enquiry reviewed. Confirm arrangements before travelling.");
+    await submit(page, enquiryForm, "Record enquiry response");
+    const supportForm = form(page, "Answer a support request");
+    await supportForm.getByLabel("Support request", { exact: true }).selectOption(support.id);
+    await supportForm.getByLabel("Support response", { exact: true }).fill("Open the order tracking section of your account.");
+    await submit(page, supportForm, "Record support response");
+    await expect(page.getByRole("table", { name: "Customer enquiry inbox" }).getByText("Responded", { exact: true })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Account support inbox" }).getByText("Answered", { exact: true })).toBeVisible();
+    await persona(page, "customer-a");
+    const customer = await snapshot(page, "customer");
+    expect(customer.orders![0].status).toBe("Confirmed");
+    expect(customer.enquiries![0].response).toContain("reviewed");
+    expect(customer.supportRequests![0].response).toContain("order tracking");
+    // Customer direct access to finance remains blocked by the server, including a fresh page request.
+    await page.goto("/hq/finance");
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByRole("heading", { name: "Your orders", exact: true })).toBeVisible();
+    const denied = await page.request.get("/api/portal?module=finance");
+    expect(denied.status()).toBe(403);
+  });
+
+  await test.step("communications forms preview, capture, moderate and unsubscribe without sending email", async () => {
+    await persona(page, "communications");
+    await page.goto("/hq/communications");
+    const campaign = form(page, "Campaign details");
+    await campaign.getByLabel("Campaign name", { exact: true }).fill("Browser captured campaign");
+    await campaign.getByLabel("Audience", { exact: true }).selectOption("test-recipients");
+    await campaign.getByLabel("Template", { exact: true }).selectOption("Customer service update");
+    await expect(campaign.getByLabel("Subject", { exact: true })).toHaveValue("Your Fatima Agro account");
+    await submit(page, campaign, "Preview recipients and message");
+    await expect(campaign.locator(".ip-success").getByText("Recipients", { exact: true })).toBeVisible();
+    await expect(campaign.locator(".ip-success").getByText("1", { exact: true })).toBeVisible();
+    await submit(page, campaign, "Save campaign");
+    const campaignId = (await snapshot(page, "communications")).campaigns!.find(item => item.name === "Browser captured campaign")!.id;
+    const capture = form(page, "Capture a saved campaign");
+    await capture.getByLabel("Uncaptured campaign", { exact: true }).selectOption(campaignId);
+    await submit(page, capture, "Capture test messages");
+    const before = await snapshot(page, "communications");
+    expect(before.capturedMessages!.filter(item => item.campaignId === campaignId)).toHaveLength(1);
+    expect(before.capturedMessages![0].status).toContain("Captured");
+    await expect(page.getByRole("table", { name: "Campaign register" }).getByRole("cell", { name: "Captured", exact: true })).toBeVisible();
+    await action(page, "campaign.capture", { campaignId });
+    expect((await snapshot(page, "communications")).capturedMessages!.filter(item => item.campaignId === campaignId)).toHaveLength(1);
+    const moderation = form(page, "Review publication decision");
+    await moderation.getByLabel("Consented review", { exact: true }).selectOption(review.id);
+    await moderation.getByLabel("Decision", { exact: true }).selectOption("Published");
+    await submit(page, moderation, "Save review decision");
+    const publicResponse = await page.request.get("/api/portal?module=public");
+    expect((await publicResponse.json()).reviews.some((item: { id: string }) => item.id === review.id)).toBeTruthy();
+    const unsubscribe = form(page, "Record an unsubscribe");
+    await unsubscribe.getByLabel("Customer", { exact: true }).selectOption("local-customer-a");
+    await submit(page, unsubscribe, "Unsubscribe customer");
+    expect((await snapshot(page, "communications")).profiles!.find(item => item.id === "local-customer-a")!.unsubscribed).toBeTruthy();
+    await page.getByRole("heading", { name: "Customer communications", exact: true }).scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath("internal-captured-email.png") });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/hq");
+    await expect(page.getByRole("heading", { name: "Your workspace", exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+    await page.screenshot({ path: testInfo.outputPath("internal-mobile-workspace.png") });
+  });
+});

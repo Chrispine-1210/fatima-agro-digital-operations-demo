@@ -1,0 +1,6 @@
+Fatima Agro local backup and recovery verification
+Verified at: 2026-10-18T08:20:09.873Z
+Result: FAIL
+Stage: source inspection
+Review diagnostic details only in the ignored work directory.
+Original local database was never a restore target.

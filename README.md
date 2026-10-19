@@ -1,136 +1,64 @@
-# Fatima Agro Digital Operations Demo
+# Fatima Agro Digital Operations Demonstration
 
-A public, synthetic-data interactive concept and evidence prototype for Fatima Agro Dealers and General Suppliers, with a location reference of Kanengo, Lilongwe. The demonstration was prepared by Aothothe Technologies.
+Presentation preparation reviewed **18 October 2026** for the CEO and shareholder meeting on **Monday, 19 October 2026**. Aothothe's delivery lead is Chrispine Mndala, Founder, CTO and Lead Systems Architecture Engineer, using the title supplied in the project request. Wilson Chipeta's contribution is proposed and the additional specialist position is vacant.
 
-> This is not production software. Every customer, worker, price, stock quantity, balance, transaction, receipt, contract, procurement reference, performance result and dashboard figure is synthetic.
+This is a synthetic-data demonstration for Fatima Agro Dealers and General Suppliers, with the client-pack location reference Kanengo, Lilongwe. Prices, stock, customers, staff, transactions and operating units are examples. No signed commercial package, verified product offer, company appointment or production approval is asserted.
 
-## Live evidence demo
+## Current implementation
 
-[Open the hosted demo](https://fatima-agro-operations-demo.peterschrispine.chatgpt.site)
-
-Use the role switcher in the header. It provides safe synthetic views for customer, seller, storekeeper, content editor, finance officer, supervisor, manager, system administrator and agent/dealer roles. It is an authorization demonstration, not real authentication. Temporary state can be reset at any time.
-
-## Responsive release evidence
-
-![Desktop management dashboard](docs/screenshots/dashboard-desktop.png)
-
-The same release candidate is captured and tested at [tablet](docs/screenshots/dashboard-tablet.png) and [mobile](docs/screenshots/dashboard-mobile.png) sizes. These images contain only synthetic demonstration records.
-
-## Purpose
-
-The project demonstrates how public product discovery can connect to controlled customer service, sales, stock, cash, procurement, content and management workflows. It is designed for evaluation, requirements validation, training discussion and release-evidence review.
-
-The prototype does not verify or claim Fatima’s legal registration, tax position, licences, certifications, product approvals, management titles or signing authority.
-
-## Portal and feature matrix
-
-| Area | Demonstrated capabilities |
+| Area | Source capability; final verification is recorded separately |
 | --- | --- |
-| Public website | Homepage, categories, searchable catalogue, product detail, enquiry, how-to-buy, stories, contact/location boundary, privacy, terms, consent controls, mobile navigation and metadata |
-| Customer portal | Own-record dashboard, profile/contact verification state, enquiries, quotations, acceptance/amendment path, orders, fulfilment instructions, receipts, approved statements, support, preferences, consent history, privacy requests and session controls |
-| Worker/seller portal | Shift and sales point, opening float, stock search, POS, numbered receipts, payment method, discount/refund boundaries, daily report, cash count/variance, supervisor close, tasks, follow-ups, stock counts, targets and CSV export |
-| Customer service & sales | Enquiry assignment, response-time tracking, quotation builder, pricing approval, orders, reservations, CRM, reminders, customer history, conversion and escalation |
-| Inventory & procurement | Products, pack sizes, units, locations, opening balances, goods received, transfers, reservations, adjustments, physical counts, reconciliation, reorder levels, suppliers, requests, orders, delivery evidence, opportunities and compliance readiness |
-| Finance & reconciliation | Receipts, cashbook, expenses/evidence, daily close, deposit batches, statement-import demonstration, matching, exceptions, approval, totals, period reports, CSV export and audit trail |
-| Contracts, tasks & admin | Contract register, status, obligations, owners/approvers, dates, evidence, assignments, dependencies, escalations, decisions, risks/issues, changes, approvals and closeout records |
-| Content administration | Pages, stories, products, categories, media/SEO, drafts, review, schedule, approval, publication, correction, emergency unpublish pattern, archive/restore, controlled deletion and versions |
-| Management dashboard | Synthetic revenue, conversion, response time, stock, cash close, reconciliation, contracts, obligations, workers, procurement, customers, content, training, risks and export |
-| System administration | RBAC, users/roles, permission matrix, separation of duties, authentication-state demo, sessions, audit, export controls, backup/restore procedure, incidents, privacy requests, retention, environment, release and health |
-| Agent/dealer expansion | Future-capability onboarding, territory, product access, ordering, margin illustration, performance, support, document readiness and independent approval |
+| Public website | Catalogue, search and filters, product details, enquiries, buying guides, image credits, contact, privacy and terms. Internal workspaces and private executive information are excluded from customer navigation. |
+| Customer account | Provider-backed identity, Fatima customer profile creation and preferences, cart, demonstration checkout, own orders and notifications, support and feedback. Fatima does not issue or store a separate customer password. |
+| Accounting | Invoices, supplier bills, captured payments and receipts, expenses, credit notes, statement lines, independent reconciliation and ledger-derived reports. |
+| HR | Synthetic employees, onboarding, leave and independent decisions, attendance and payroll preparation. |
+| Procurement | Suppliers, purchase requests, separate approval, purchase orders, partial goods receipts, inventory movements and linked supplier bills. |
+| Administration | Operating units, function boundaries, role requests and decisions, task evidence and audit records. These model proposed company controls rather than confirmed appointments. |
+| Notifications and campaigns | In-application events and captured email previews/messages, consent filtering, unsubscribe, duplicate prevention and manually processed due schedules. No external email is sent. |
 
-## Connected demonstration journeys
+Read [the feature register](docs/FEATURE_MATRIX.md), [architecture](docs/ARCHITECTURE.md) and [current release evidence](aothothe-pack/09-release-evidence.md). Source availability is not a test pass. Final browser, deployment and recovery evidence is pending until entered in that record.
 
-1. Visitor → unique enquiry → staff assignment → quotation → customer acceptance → synthetic order.
-2. Seller → numbered receipt → cash count → supervisor close → deposit batch → finance reconciliation.
-3. Supplier delivery → goods received → stock update → physical count → reconciliation.
-4. Manager task → worker completion → evidence → independent approval.
-5. Contract → obligation → owner → due date → evidence → management review.
-6. Content draft → reviewer approval → publication → correction → archive/version history.
-7. Customer role → quotation → receipt/statement → support or privacy request.
-8. Agent/dealer applicant → readiness review → approval decision.
+## Customer identity and internal rehearsal
 
-## Architecture
+On the configured host, the customer signs in through the identity provider and creates a Fatima profile linked to that identity. Account creation or recovery at the provider belongs to the provider's own supported flow; an authenticated hosted rehearsal remains a release check. New customer registration grants no internal role. Initial administrator configuration is separate from business approval authority.
 
-The application is a strongly typed React/TypeScript interface built with Next-compatible routing through Vinext and Vite, packaged for the configured OpenAI Sites/Cloudflare Worker runtime. The public release uses no database, upload store, bank connection or runtime secret. Workflow state is temporary browser-session state.
+Local rehearsal provides fictional customer and staff personas only on loopback, with explicit local configuration and a signed four-hour session. It is the presentation path for internal roles that have no confirmed hosted assignment. `/rehearsal` does not grant access on the hosted site. The executive approval persona is operated by Aothothe and does not create a real executive account or assign preparation work to the Fatima CEO.
 
-```text
-Public pages + role switcher
-          ↓
-Typed React portal screens
-          ↓
-Synthetic workflow state + separation-of-duties rules
-          ↓
-Vinext/Vite build → Cloudflare Worker-compatible Sites artifact
+## Exact local setup
+
+Use the existing opened checkout and bundled runtime in PowerShell:
+
+```powershell
+Set-Location -LiteralPath 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout'
+$fatimaRuntime = 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-runtime\node-v24.21.0-win-x64'
+$fatimaNode = Join-Path $fatimaRuntime 'node.exe'
+$env:Path = "$fatimaRuntime;$env:Path"
+& $fatimaNode --version
+& $fatimaNode 'node_modules/vinext/dist/cli.js' build
+& $fatimaNode 'scripts/setup-demo.mjs'
+& $fatimaNode 'scripts/start-demo.mjs'
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the control boundaries and [docs/FEATURE_MATRIX.md](docs/FEATURE_MATRIX.md) for detailed coverage.
+The setup script preserves existing ignored `.dev.vars`, creates a random local session key if absent, and applies the packaged local D1 migration. Do not print or commit the key. The final start/build/migration results and occupied port must be confirmed in the release record. Open `http://127.0.0.1:5173/`, then `/rehearsal` for fictional roles. Do not reinstall or rebuild a frozen presentation environment without a reason. Full setup, checks and reset instructions are in [the operations runbook](aothothe-pack/03-operations-runbook.md).
 
-## Local setup
+## Storage and external effects
 
-Requirements: Node.js 22.13 or later and npm.
+The current source uses D1 binding `DB`, with a bounded state document and guarded revision update. This replaces the earlier browser-memory demonstration. It is not a claimed production accounting architecture, automatic backup service or proven recovery system. Hosting, migration, identity and persistence must be verified on the actual deployed version.
 
-```bash
-npm ci
-npm run dev
-```
+Payments, payroll, fiscal invoices/tax filing, bank feeds, carrier bookings and email delivery are not connected. A captured payment records evidence without transferring funds. Product photographs have documented rights and illustration labels; exact commercial packaging and product-specific tax treatment remain unverified. See [image and source evidence](aothothe-pack/08-source-register.md).
 
-Open the local URL printed by Vite. No environment variables are required. Copy `.env.example` only if you need to exercise the documented non-secret release metadata pattern.
+## Presentation and handover
 
-## Verification
+The [Aothothe pack](aothothe-pack/README.md) contains the demonstration script, technology inventory, team procedures, proposed Wilson memorandum, roadmap, growth/tax/delivery research, sources, readiness checklist and release evidence. The [September release record](docs/RELEASE_EVIDENCE.md) is historical and does not validate this implementation. Its old dashboard screenshots are not current readiness evidence.
 
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm run test:components
-npx playwright install chromium
-npm run test:browser
-npm run audit:prod
-npm run scan:secrets
-```
+Keep confidential client-pack documents, credentials, real payroll/customer records and private leadership material outside public assets and public evidence. Use only disposable synthetic records in the demonstration. Follow [deployment and rollback guidance](docs/DEPLOYMENT.md) for a reviewable release; no access-policy change or external message is authorized by this README.
 
-CI runs linting, type checking, unit/workflow/release-boundary tests, production build, component tests, three responsive browser profiles, production dependency audit and secret scanning. See the [v1.0.0-demo release evidence](docs/RELEASE_EVIDENCE.md) for the gate record and screenshots.
+## Contributing and rights
 
-## Public-data and security boundary
+Review [CONTRIBUTING.md](CONTRIBUTING.md). Report suspected security issues privately as described in [SECURITY.md](SECURITY.md).
 
-- Do not enter real names, phone numbers, email addresses, identity records, addresses, employee data, bank details, credentials, agreements, prices or procurement records.
-- No real bank account is connected. The sequence shown is statement import, then separately approved read-only feed, then separately authorized payment initiation only under production controls.
-- Online-banking passwords must never be requested or stored.
-- Destructive actions are disabled. Other actions affect only temporary synthetic browser state.
-- Customers are limited to the synthetic records assigned to their demonstration account.
-- Sellers cannot approve their own cash variance, refund or stock adjustment.
-- Commercial, legal, regulated and product claims require a second reviewer.
-- Private client/legal packs, negotiations and readiness responses are excluded from this repository.
+Copyright ? 2026 Aothothe Technologies. All rights reserved. Evaluation publication does not grant commercial reuse, redistribution, sublicensing or production-operation rights. No open-source licence is granted unless Aothothe approves and publishes one separately. Third-party images retain their documented licences.
 
-Report suspected security issues privately as described in [SECURITY.md](SECURITY.md).
+## Candidate verification - 19 October
 
-## Deployment
-
-The repository is configured for OpenAI Sites through `.openai/hosting.json`. A release build is saved against an exact Git commit and then deployed. Access is made public only for the sanitized evidence demo. Custom domains and DNS are outside this release.
-
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for build, release, health and rollback steps.
-
-## Known limitations
-
-- Authentication, persistent user accounts and server-side authorization are demonstrated, not connected to a real identity provider.
-- Data resets with the browser session and is not shared between visitors.
-- Forms do not send email, SMS or WhatsApp messages.
-- Product, stock, price, location and availability values are illustrative until formally verified.
-- Receipts and statements are demonstration downloads, not fiscal or banking records.
-- No live MANePS, supplier, payment, accounting, bank, map, analytics or messaging integration is connected.
-- Agent/dealer features describe a possible future capability, not an operating network.
-
-## Deferred production integrations
-
-Identity and MFA; server-side RBAC; encrypted durable storage; verified customer/product/stock migration; notifications; fiscal/POS integration; accounting; approved business-bank statement import; supported read-only bank feed; separately authorized payment initiation with secure tokens, MFA, limits and dual approval; backups; monitoring; incident response; and verified legal/privacy/retention controls.
-
-## Contributing
-
-Review [CONTRIBUTING.md](CONTRIBUTING.md). Do not open an issue or pull request containing client data, credentials, private documents or unverified claims.
-
-## Copyright and evaluation notice
-
-Copyright © 2026 Aothothe Technologies. All rights reserved.
-
-This source is published for evaluation only. Publication does not grant commercial reuse, redistribution, sublicensing or production-operation rights. No open-source licence is granted unless Aothothe Technologies approves and publishes a separate licence.
+On 19 October, 34 source tests, TypeScript, the production build and 2 release-artifact checks passed. Lint reported 0 errors and 17 warnings; the secret scan checked 176 working files and 4 commits. Installed production audit: 0 vulnerabilities; full toolchain audit: 24 vulnerable-package records (18 high, 5 moderate, 1 low, 0 critical). All three local browser journeys passed across two recorded runs: customer/public 2 passes and the affected internal journey 1 pass. These are combined verified journeys, not a claimed single three-test green run. Local recovery failed at export and is being corrected; deployment and authenticated hosted rehearsal remain open. See document 09 for exact logs and limits.

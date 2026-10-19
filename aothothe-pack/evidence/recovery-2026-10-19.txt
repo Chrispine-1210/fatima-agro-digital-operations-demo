@@ -1,0 +1,16 @@
+Fatima Agro local backup and recovery verification
+Verified at: 2026-10-19T05:02:49.667Z
+Scope: local synthetic rehearsal database only; this is not a hosted recovery SLA.
+Result: PASS
+Export imported into a new isolated local persistence directory.
+Original local presentation state unchanged: true
+Exact payload SHA-256, revision, record counts and ledger totals match: true
+Revision: 204
+Payload SHA-256: d8a03eb4c85559a8572c568966ad7de46bb63aaff443130981406b2d5689a920
+Record counts: {"users":13,"profiles":1,"orders":1,"invoices":3,"bills":2,"payments":3,"receipts":2,"expenses":1,"creditNotes":1,"journals":10,"employees":1,"leaveRequests":1,"payrollPreparations":1,"purchaseRequests":1,"purchaseOrders":1,"goodsReceipts":1,"stockMovements":2,"notifications":15,"campaigns":1,"capturedMessages":6,"audit":41}
+Ledger totals (integer MWK): {"debits":434000,"credits":434000,"balanced":true,"receivables":45000,"payables":30000,"cash":161500,"revenue":213500,"expenses":2000}
+Export duration: 21905 ms
+Import duration: 11146 ms
+Total verification duration: 55861 ms
+Raw backup and isolated restored state retained under ignored work\recovery-68126a3a.
+Raw SQL, record payloads, customer details and session credentials are excluded from this evidence summary.

@@ -21,13 +21,12 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - run: npm ci
+      - run: npm ci --include=dev
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npm run test:components
-      - run: npm run test:rendered
+      - run: npm run test:release
       - run: npm run audit:prod
       - run: npm run scan:secrets
 
@@ -40,8 +39,10 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - run: npm ci
+      - run: npm ci --include=dev
       - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run setup:demo
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4
         if: always()

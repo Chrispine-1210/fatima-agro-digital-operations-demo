@@ -7,8 +7,8 @@ export default function NotFound() {
       <SearchX />
       <p>404 · FATIMA AGRO DIGITAL OPERATIONS DEMO</p>
       <h1>That demonstration route was not found.</h1>
-      <span>Return to the public evidence prototype or choose a portal from its navigation.</span>
-      <Link href="/#public">Return to the demo</Link>
+      <span>Return to the home page or browse the product catalogue.</span>
+      <Link href="/">Return to Fatima Agro</Link>
     </main>
   );
 }

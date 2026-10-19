@@ -1,0 +1,93 @@
+
+> fatima-agro-operations-demo@1.0.0-demo build
+> node node_modules/vinext/dist/cli.js build
+
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+
+transforming...✓ 177 modules transformed.
+rendering chunks...
+node.exe : [PLUGIN_TIMINGS] Your build spent significant time in plugins. Here is a breakdown:
+At line:2 char:315
++ ... +$env:PATH; & 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformati ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([PLUGIN_TI...is a breakdown::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  - rsc:scan-strip (29%)
+  - rsc:virtual-client-package (13%)
+  - vinext:react-canary (13%)
+  - rsc:scan-strip (10%)
+  - rsc:use-server (5%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+
+✓ built in 6.17s
+[2/5] analyze server references...
+
+transforming...✓ 96 modules transformed.
+rendering chunks...
+✓ built in 348ms
+[3/5] build rsc environment...
+
+transforming...✓ 183 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.13s
+[4/5] build client environment...
+
+transforming...✓ 1989 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 15.24s
+[5/5] build ssr environment...
+
+transforming...✓ 102 modules transformed.
+rendering chunks...
+computing gzip size...
+[PLUGIN_TIMINGS] Your build spent significant time in plugins. Here is a breakdown:
+  - vinext:strip-server-exports (13%)
+  - vinext:react-canary (11%)
+  - vite:css-post (10%)
+  - vinext:og-inline-fetch-assets (7%)
+  - rsc:use-client (7%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+
+✓ built in 3.52s
+
+  Route (app)
+  ┌ ? /                  
+  ├ ? /about             
+  ├ ? /account           
+  ├ ƒ /account/orders/:id
+  ├ ? /account/recover   
+  ├ ? /account/register  
+  ├ λ /api/portal        
+  ├ λ /api/session       
+  ├ ? /careers           
+  ├ ? /cart              
+  ├ ? /catalogue         
+  ├ ? /contact           
+  ├ ƒ /hq                
+  ├ ƒ /hq/:module        
+  ├ ? /image-credits     
+  ├ ? /news              
+  ├ ƒ /news/:id          
+  ├ ? /privacy           
+  ├ ƒ /products/:id      
+  ├ ƒ /rehearsal         
+  ├ ? /reviews           
+  ├ ? /terms             
+  └ ƒ /unsubscribe       
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+

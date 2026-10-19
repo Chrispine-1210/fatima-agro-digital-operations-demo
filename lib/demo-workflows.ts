@@ -1,4 +1,4 @@
-export type DemoRole = "customer" | "seller" | "storekeeper" | "editor" | "finance" | "supervisor" | "manager" | "administrator" | "agent";
+export type DemoRole = "customer" | "seller" | "sales" | "storekeeper" | "procurement" | "editor" | "finance" | "supervisor" | "manager" | "administrator" | "agent" | "ceo" | "branch-manager" | "operations-director" | "procurement-director" | "finance-director" | "hr" | "hr-director" | "compliance-director" | "security-director" | "mra-clerk" | "mra-reviewer" | "branch-task-coordinator";
 export type ShiftStage = "open" | "sale" | "submitted" | "approved" | "deposited" | "reconciled";
 export type ShiftAction = "record-sale" | "submit-count" | "approve-close" | "create-deposit" | "reconcile";
 

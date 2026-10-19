@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/node_modules.shared-original/
 /.pnp
 .pnp.*
 .yarn/*
@@ -38,6 +39,7 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /.wrangler/
 /.sites-runtime/
@@ -54,3 +56,8 @@ next-env.d.ts
 *.pdf
 __pycache__/
 *.pyc
+/.dev.vars
+/.dev.vars.*
+/.fatima-local-export-*.json
+/.delivery-work/
+/aothothe-pack/evidence/private/

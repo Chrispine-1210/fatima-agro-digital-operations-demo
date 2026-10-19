@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const patterns = [
@@ -14,7 +14,7 @@ const skip = new Set(["scripts/secret-scan.mjs", "package-lock.json"]);
 
 function repositoryFiles() {
   const output = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], { encoding: "utf8" });
-  return output.split(/\r?\n/).filter(Boolean).filter((file) => textExtensions.has(path.extname(file)) && !skip.has(file));
+  return output.split(/\r?\n/).filter(Boolean).filter((file) => textExtensions.has(path.extname(file)) && !skip.has(file) && existsSync(file));
 }
 
 function scan(label, content, findings) {

@@ -14,7 +14,7 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
       <AlertTriangle />
       <p>FATIMA AGRO DIGITAL OPERATIONS DEMO</p>
       <h1>This demonstration view could not load.</h1>
-      <span>No customer, banking or production data was affected.</span>
+      <span>Refresh this view and check your records before repeating an action. Your last request may have completed.</span>
       <Button onClick={reset}><RefreshCcw /> Try again</Button>
     </main>
   );

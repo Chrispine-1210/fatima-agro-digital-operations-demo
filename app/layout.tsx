@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@/components/storefront.css";
+import "@/components/internal-portal.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://fatima-agro-operations-demo.peterschrispine.chatgpt.site"),
-  title: "Fatima Agro Digital Operations Demo",
-  description: "A synthetic-data interactive concept and evidence prototype for farm-input enquiries, sales, inventory, finance and administration in Kanengo, Lilongwe.",
+  title: "Fatima Agro | Farm Inputs and Customer Services",
+  description: "Discover farm inputs, request an order and manage your Fatima Agro customer account. Presentation environment with sample catalogue data.",
   keywords: ["agro dealer demo", "digital operations prototype", "inventory controls", "sales workflow", "Lilongwe"],
-  applicationName: "Fatima Agro Digital Operations Demo",
+  applicationName: "Fatima Agro",
   authors: [{ name: "Aothothe Technologies" }],
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
   openGraph: {
     type: "website",
-    title: "Fatima Agro Digital Operations Demo",
-    description: "Synthetic evidence prototype · Kanengo, Lilongwe",
-    siteName: "Fatima Agro Digital Operations Demo",
+    title: "Fatima Agro | Farm Inputs and Customer Services",
+    description: "Product catalogue, customer enquiries and role-based operations portal concept. Synthetic demonstration data only.",
+    siteName: "Fatima Agro",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fatima Agro Digital Operations Demo",
-    description: "Synthetic evidence prototype · Kanengo, Lilongwe",
+    title: "Fatima Agro | Farm Inputs and Customer Services",
+    description: "Product catalogue, customer enquiries and role-based operations portal concept. Synthetic demonstration data only.",
   },
-  other: { "codex-preview": "development" },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
 

@@ -1,0 +1,59 @@
+
+Running 3 tests using 1 worker
+
+node.exe : (node:22636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:2 char:1
++ & 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:22636) Wa... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ok 1 tests\e2e\customer.spec.ts:16:1 › customer registers, browses, checks out and tracks only own persistent orders (34.8s)
+  ok 2 tests\e2e\customer.spec.ts:46:1 › public direct routes, responsive layouts, source credits and image fallback (45.7s)
+  x  3 tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys (25.5s)
+
+
+  1) tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys › purchase forms independently approve and receive goods into branch inventory 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('table', { name: 'Purchase order register' }).getByText('Received', { exact: true })
+    Expected: visible
+    Error: strict mode violation: getByRole('table', { name: 'Purchase order register' }).getByText('Received', { exact: true }) resolved to 2 elements:
+        1) <th scope="col">Received</th> aka getByRole('columnheader', { name: 'Received' })
+        2) <td>Received</td> aka getByRole('cell', { name: 'Received', exact: true })
+
+    Call log:
+      - Expect "toBeVisible" getByRole('table', { name: 'Purchase order register' }).getByText('Received', { exact: true }) with timeout 15000ms
+      - waiting for getByRole('table', { name: 'Purchase order register' }).getByText('Received', { exact: true })
+
+
+      222 |     expect(data.goodsReceipts![0].quantity).toBe(5);
+      223 |     expect(data.purchaseOrders![0].status).toBe("Received");
+    > 224 |     await expect(page.getByRole("table", { name: "Purchase order register" }).getByText("Received", { exact: true })).toBeVisible();
+          |                                                                                                                       ^
+      225 |     await expect(page.getByRole("table", { name: "Goods received register" }).getByText("TEST-GOODS-RECEIVED", { exact: true })).toBeVisible();
+      226 |     await page.getByRole("heading", { name: "Orders, procurement and stock", exact: true }).scrollIntoViewIfNeeded();
+      227 |     await page.screenshot({ path: testInfo.outputPath("internal-procurement.png") });
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:224:119
+        at C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Complete_Pack\.sites-publish-checkout\tests\e2e\internal.spec.ts:180:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\playwright\internal-internal-roles-co-d7fdb-ured-communication-journeys\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests\e2e\internal.spec.ts:30:1 › internal roles complete accounting, HR, procurement and captured communication journeys 
+  2 passed (2.0m)

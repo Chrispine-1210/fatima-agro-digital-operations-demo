@@ -1,0 +1,75 @@
+Fatima Agro dependency and Windows runtime evidence
+Checked: 19 October 2026 (Africa/Blantyre delivery date)
+
+Installed package checks (read directly from this checkout):
+next: 16.4.2
+react: 19.2.8
+react-dom: 19.2.8
+react-server-dom-webpack: 19.2.8
+vinext: 0.0.50
+vite: 8.0.13
+wrangler: 4.92.0
+@cloudflare/vite-plugin: 1.37.1
+image-size: 2.0.4
+
+Commands: supplied Node 24.21.0 runtime + its absolute npm CLI path.
+Production: npm audit --omit=dev --json; exit 0.
+{"info":0,"low":0,"moderate":0,"high":0,"critical":0,"total":0}
+Full toolchain: npm audit --include=dev --json; exit 1 because findings remain.
+{"info":0,"low":1,"moderate":5,"high":18,"critical":0,"total":24}
+
+The production-only result is not a clean full-toolchain audit.
+These are npm vulnerable-package counts, not counts of unique advisories.
+React Server DOM Webpack is installed at 19.2.8 and is absent from the refreshed audit findings.
+image-size 2.0.4 is installed and is absent from the refreshed audit findings.
+
+Residual package records (severity | installed path/version | lockfile development flag):
+@babel/core: low | node_modules/@babel/core@7.29.0 [dev=true]
+@cloudflare/vite-plugin: high | node_modules/@cloudflare/vite-plugin@1.37.1 [dev=true]
+@esbuild-kit/core-utils: moderate | node_modules/@esbuild-kit/core-utils@3.3.2 [dev=true]
+@esbuild-kit/esm-loader: moderate | node_modules/@esbuild-kit/esm-loader@2.6.5 [dev=true]
+@next/eslint-plugin-next: high | node_modules/@next/eslint-plugin-next@16.4.2 [dev=true]
+brace-expansion: high | node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion@5.0.6 [dev=true]; node_modules/brace-expansion@1.1.14 [dev=true]
+braces: high | node_modules/braces@3.0.3 [dev=true]
+browserslist: high | node_modules/browserslist@4.28.2 [dev=true]
+drizzle-kit: moderate | node_modules/drizzle-kit@0.31.10 [dev=true]
+esbuild: moderate | node_modules/@esbuild-kit/core-utils/node_modules/esbuild@0.18.20 [dev=true]; node_modules/esbuild@0.28.0 [dev=true]; node_modules/wrangler/node_modules/esbuild@0.27.3 [dev=true]
+eslint-config-next: high | node_modules/eslint-config-next@16.4.2 [dev=true]
+fast-glob: high | node_modules/fast-glob@3.3.1 [dev=true]; node_modules/vite-plugin-dynamic-import/node_modules/fast-glob@3.3.3 [dev=true]
+fflate: moderate | node_modules/fflate@0.7.4 [dev=true]
+js-yaml: high | node_modules/js-yaml@4.1.1 [dev=true]
+micromatch: high | node_modules/micromatch@4.0.8 [dev=true]
+miniflare: high | node_modules/miniflare@4.20260515.0 [dev=true]
+sharp: high | node_modules/sharp@0.34.5 [dev=true]
+undici: high | node_modules/undici@7.24.8 [dev=true]
+vinext: high | node_modules/vinext@0.0.50 [dev=true]
+vite: high | node_modules/vite@8.0.13 [dev=true]
+vite-plugin-commonjs: high | node_modules/vite-plugin-commonjs@0.10.4 [dev=true]
+vite-plugin-dynamic-import: high | node_modules/vite-plugin-dynamic-import@1.6.0 [dev=true]
+wrangler: high | node_modules/wrangler@4.92.0 [dev=true]
+ws: high | node_modules/ws@8.18.0 [dev=true]
+
+Residual scope assessment:
+- @cloudflare/vite-plugin, Wrangler and Miniflare provide build/deploy/local-emulator tooling. Their dependency trees include vulnerable Sharp 0.34.5, Undici and ws copies.
+- Vite findings concern development-server Windows path handling and editor integration. The local preview binds 127.0.0.1; the published artifact is a built Worker rather than a Vite development server.
+- ESLint/Next lint plugin, fast-glob, micromatch, braces and brace-expansion handle lint/build file patterns. Babel and Browserslist handle source transformations and browser targets.
+- Drizzle Kit and its esbuild-kit/esbuild chain handle schema generation. js-yaml appears under the ESLint configuration loader. fflate is required by @shuding/opentype.js through Satori in the framework dependency tree; its classification must not be simplified to lint-only tooling.
+- Vinext remains listed through its CommonJS/dynamic-import/glob build plugin chain; the framework itself also supplies deployed runtime code. Its devDependency placement alone cannot prove the deployed runtime unaffected.
+- Every residual node listed above has lockfile dev=true. That describes installation classification, not a proof of runtime safety. The 0-production/24-full split must be retained in release notes.
+- No critical-severity findings were reported by either fresh audit. This is a point-in-time npm audit, not a complete security assessment.
+
+Windows native runtime:
+- Fresh workerd reports 2026-05-15 and exits 0 after adding the Microsoft-signed MSVCP140_ATOMIC_WAIT.dll to the existing app-local runtime directory.
+- DLL SHA256: 3d0cbfaa1bf3eecf5a3f4491d2960ee803cb994f30292c6adc4a07c498f60e2b.
+- scripts/setup-demo.mjs exited 0, preserved existing configuration and data, and reported No migrations to apply.
+- No machine-wide runtime install, shared dependency target edit, or dependency change occurred during this audit.
+
+Raw machine-readable audit reports are held in .delivery-work/dependency-audit-installed-prod-2026-10-19.json and dependency-audit-installed-all-2026-10-19.json.
+Application build, source boundaries, browser scenarios, recovery and deployed verification are separate release evidence.
+
+Built Worker spot inspection after the successful final build:
+- Inspected 15 generated server JavaScript files and the Vinext external-module manifest; the latter is an empty array.
+- Both server entry bundles contain React/RSC 19.2.8 markers.
+- No package-path markers for Miniflare, Undici, ws, Sharp, fflate, js-yaml or image-size were found in those files. No WebSocketServer, launch-editor, satori or vite-plugin-commonjs markers were found. The only opentype match was a font MIME type string.
+- No app/lib source route imports ImageResponse, next/og, Satori, opentype or fflate.
+- This bounded text inspection found no obvious additional critical runtime issue. Optimisation can remove package names, so it is not proof that every vulnerable code path is excluded; retain the full audit findings for the post-presentation dependency upgrade work.
