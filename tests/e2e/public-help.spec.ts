@@ -41,13 +41,13 @@ test("public help routes remain usable on desktop and mobile", async ({ page }) 
   await mkdir("work/public-ux-evidence", { recursive: true });
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
-    for (const path of ["/contact", "/about", "/careers", "/reviews"]) {
+    for (const path of ["/", "/catalogue", "/news", "/contact", "/about", "/careers", "/reviews"]) {
       const response = await page.goto(path);
       expect(response?.status()).toBe(200);
       await expect(page.locator("main h1")).toBeVisible();
       await expect(page.locator(".sf-loading")).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
-      await page.screenshot({ path: `work/public-ux-evidence/${path.slice(1)}-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `work/public-ux-evidence/${path==="/"?"home":path.slice(1)}-${width}.png`, fullPage: true });
       await page.reload();
       await expect(page.locator("main h1")).toBeVisible();
     }

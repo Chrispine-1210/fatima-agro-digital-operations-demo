@@ -1,0 +1,296 @@
+/* Public storefront surfaces. Operational forms retain plain, readable panels. */
+.storefront {
+  --sf-ivory: #f6f3e9;
+  --sf-sage: #e7eedf;
+  --sf-gold: #b69b4e;
+  background: #f8faf6;
+}
+
+.storefront .sf-header {
+  background: #fffef9;
+}
+
+.storefront .sf-hero {
+  background: var(--sf-ivory);
+  gap: 32px;
+}
+
+.storefront .sf-hero-copy {
+  background: url('/images/brand/seedling-lines.svg') no-repeat right bottom / 190px;
+}
+
+.storefront .sf-hero-photo {
+  border-radius: 6px;
+  border: 1px solid #d6dfd0;
+}
+
+.storefront .sf-service-strip {
+  background: var(--sf-sage);
+  border-color: #d1ddca;
+  border-radius: 0 0 6px 6px;
+}
+
+.storefront .sf-service-strip > div {
+  border-color: #c7d5bd;
+}
+
+.storefront .sf-catalogue-section {
+  background: linear-gradient(180deg, #f8faf6, #edf2e7);
+  border-bottom: 1px solid #dce5d5;
+}
+
+.storefront .sf-product-card {
+  background: #fff;
+  border-color: #d7e1d1;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px #173a2610;
+}
+
+.storefront .sf-about-band {
+  background: var(--sf-sage) url('/images/brand/field-contours.svg') no-repeat right center / cover;
+  border: 1px solid #d4dfc9;
+  border-radius: 6px;
+}
+
+.storefront .sf-about-band li > span {
+  color: #59714b;
+}
+
+.storefront .sf-journal-section {
+  background: #fffefb;
+  border-block: 1px solid #e6e2d4;
+  margin-block: 32px;
+}
+
+.storefront .sf-guide img {
+  border-radius: 6px;
+  border: 1px solid #e1e5da;
+}
+
+.storefront .sf-feedback-band {
+  background: linear-gradient(90deg, #174c3c 0%, #174c3cfa 58%, #174c3ce8 100%),
+    url('/images/harvest-detail.jpg') right center / cover;
+  color: #fffef5;
+  border: 1px solid #174c3c;
+  border-left: 4px solid var(--sf-gold);
+  border-radius: 6px;
+}
+
+.storefront .sf-feedback-band p {
+  color: #e2eadd;
+}
+.storefront .sf-feedback-band .sf-eyebrow {
+  color: #d8e4bf;
+}
+
+.storefront .sf-feedback-band .sf-btn {
+  background: #f7f4e8;
+  color: #174c3c !important;
+  border-color: #f7f4e8;
+}
+
+.storefront .sf-feedback-band .sf-btn:hover {
+  background: #e7eedf;
+  border-color: #e7eedf;
+}
+
+/* Real agriculture photographs provide context, never store-location claims. */
+.storefront .sf-page-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  min-height: 260px;
+  max-width: none;
+  margin-bottom: 32px;
+  padding: 44px 48px;
+  border: 1px solid #dce3d3;
+  border-radius: 6px;
+  background-color: var(--sf-ivory);
+  background-image: linear-gradient(90deg, #f6f3e9 0%, #f6f3e9 55%, #f6f3e900 83%),
+    url('/images/farm-field.jpg');
+  background-position: center, right center;
+  background-size: cover;
+}
+
+.storefront .sf-page-banner-harvest {
+  background-image: linear-gradient(90deg, #f6f3e9 0%, #f6f3e9 55%, #f6f3e900 83%),
+    url('/images/harvest-detail.jpg');
+}
+
+.storefront .sf-page-banner-produce {
+  background-image: linear-gradient(90deg, #f6f3e9 0%, #f6f3e9 55%, #f6f3e900 83%),
+    url('/images/crop-care.jpg');
+}
+
+.storefront .sf-banner-art {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  opacity: .26;
+  background: url('/images/brand/field-contours.svg') no-repeat left bottom / 58% auto;
+}
+
+.storefront .sf-banner-copy {
+  position: relative;
+  min-width: 0;
+}
+
+.storefront .sf-page-banner .sf-banner-copy {
+  width: 62%;
+}
+
+.storefront .sf-page-banner h1 {
+  font-size: clamp(32px, 3.6vw, 46px);
+  max-width: 590px;
+}
+
+.storefront .sf-page-banner p {
+  max-width: 520px;
+  margin-bottom: 0;
+  color: #52685b;
+}
+
+.storefront .sf-service-section {
+  margin-top: 32px;
+  padding: 36px;
+  padding-inline: 32px !important;
+  background: linear-gradient(110deg, #e7eedf, #eef3e7);
+  border: 1px solid #d3dfc9;
+  border-radius: 6px;
+}
+
+.storefront .sf-service-card {
+  border: 1px solid #d3dfc9;
+  border-top: 3px solid #607d53;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px #173a2609;
+}
+
+.storefront .sf-service-card-care { background: #fffefa; }
+.storefront .sf-service-card-sales { background: #f7f4e9; border-top-color: #9d8341; }
+.storefront .sf-service-card-fulfilment { background: #f3f8ee; border-top-color: #38654c; }
+
+.storefront .sf-service-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.storefront .sf-service-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  background: #e4ecd9;
+  color: #174c3c;
+  border: 1px solid #cdddbf;
+  border-radius: 6px;
+}
+
+.storefront .sf-service-mark svg { width: 23px; height: 23px; }
+.storefront .sf-service-number { margin-bottom: 0; padding-top: 9px; }
+.storefront .sf-service-card-sales .sf-service-mark { background: #ece4ca; border-color: #ded1a8; }
+
+.storefront .sf-place-card {
+  background: linear-gradient(#edf3e8f7, #edf3e8f7),
+    url('/images/harvest-detail.jpg') center / cover;
+  border-color: #d2dfc7;
+}
+
+.storefront .sf-collection-card { background: #f8f5e9; border-color: #e3ddc6; }
+.storefront .sf-delivery-card { background: #edf4e9; border-color: #d5e2cc; }
+.storefront .sf-enquiry-card { background: #fff; border-color: #d7e1d1; }
+
+.storefront .sf-career-card {
+  background: #f6f3e9 url('/images/brand/seedling-lines.svg') no-repeat right top / 220px;
+  border-color: #e1dabe;
+}
+
+.storefront .sf-career-details {
+  padding: 22px;
+  background: #fffefb;
+  border: 1px solid #e0ddcd;
+  border-radius: 4px;
+}
+
+.storefront .sf-feedback-invite {
+  background: linear-gradient(145deg, #fff, #edf4e8);
+  border-color: #d2dfc7;
+  border-top: 3px solid #64824f;
+}
+
+.storefront .sf-feedback-empty {
+  background: #f8f5e9 url('/images/brand/field-contours.svg') no-repeat right bottom / 250px;
+  border-color: #e1dcc8;
+}
+
+.storefront.sf-view-account,
+.storefront.sf-view-cart { background: #f3f6f0; }
+
+.storefront .sf-footer {
+  background: #143c30;
+  color: #f8f6eb;
+  border-top: 3px solid var(--sf-gold);
+}
+
+.storefront .sf-footer p,
+.storefront .sf-footer .sf-brand small,
+.storefront .sf-footer-bottom { color: #d2e0d0; }
+.storefront .sf-footer h3 { color: #f8f6eb; }
+.storefront .sf-footer a:hover { color: #e5cf87; }
+.storefront .sf-footer .sf-brand > span { background: #e7eedf; border-color: #cad8bd; color: #174c3c; }
+.storefront .sf-footer-bottom { border-top-color: #426353; }
+.storefront .sf-footer a:focus-visible,
+.storefront .sf-feedback-band a:focus-visible { outline-color: #e5cf87; }
+
+@media (max-width: 800px) {
+  .storefront .sf-page-banner { padding: 36px 30px; min-height: 250px; }
+  .storefront .sf-page-banner .sf-banner-copy { width: 68%; }
+  .storefront .sf-service-section { padding: 28px; padding-inline: 24px !important; }
+  .storefront .sf-hero { gap: 24px; }
+}
+
+@media (max-width: 560px) {
+  .storefront .sf-page-banner {
+    padding: 28px 24px 180px;
+    min-height: 0;
+    background-position: center, right bottom;
+    background-size: cover, 100% auto;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(180deg, #f6f3e9 0%, #f6f3e9 calc(100% - 155px), #f6f3e900 calc(100% - 135px)),
+      url('/images/farm-field.jpg');
+  }
+  .storefront .sf-page-banner-harvest {
+    background-image: linear-gradient(180deg, #f6f3e9 0%, #f6f3e9 calc(100% - 155px), #f6f3e900 calc(100% - 135px)),
+      url('/images/harvest-detail.jpg');
+  }
+  .storefront .sf-page-banner-produce {
+    background-image: linear-gradient(180deg, #f6f3e9 0%, #f6f3e9 calc(100% - 155px), #f6f3e900 calc(100% - 135px)),
+      url('/images/crop-care.jpg');
+  }
+  .storefront .sf-page-banner .sf-banner-copy { width: 100%; }
+  .storefront .sf-page-banner h1 { font-size: 34px; }
+  .storefront .sf-banner-art { background-size: 100% auto; }
+  .storefront .sf-service-section { padding: 24px 18px; padding-inline: 18px !important; }
+  .storefront .sf-career-card { background-size: 150px; }
+  .storefront .sf-career-details { padding: 18px; }
+  .storefront .sf-hero-copy { background-size: 130px; }
+  .storefront .sf-feedback-band { background-position: center, right bottom; }
+}
+
+@media print, (forced-colors: active) {
+  .storefront :is(.sf-hero-copy, .sf-about-band, .sf-feedback-band, .sf-page-banner,
+    .sf-place-card, .sf-career-card, .sf-feedback-empty) { background-image: none; }
+  .storefront .sf-banner-art { display: none; }
+  .storefront .sf-page-banner { padding-bottom: 28px; }
+  .storefront .sf-page-banner .sf-banner-copy { width: 100%; }
+  .storefront :is(.sf-footer, .sf-feedback-band) { background: Canvas; color: CanvasText; }
+  .storefront :is(.sf-footer, .sf-feedback-band) :is(p, h3, small, .sf-footer-bottom, .sf-eyebrow) { color: CanvasText; }
+}
