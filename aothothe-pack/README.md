@@ -20,3 +20,8 @@ The supplied address is configured as the initial hosted system administrator on
 This pack distinguishes implemented code, tested behavior, simulated transactions, dependencies and planned work. A feature's presence in source is not a test pass. The release evidence record is authoritative for checks actually completed on the final revision. Do not describe fiscal invoices, payments, payroll, messages or delivery as live unless that integration has separate verified evidence.
 
 The client pack contains draft commercial and legal material. This sanitized pack references its pages without reproducing fees, signatures, private leadership material or legal templates. The original five documents remain the business source of truth and must not be served from the website's public directory.
+
+
+## Management tools addendum — 21 October 2026
+
+The new [inventory execution runbook](../docs/INVENTORY-EXECUTION.md), [device integration documentation](../docs/DEVICE-INTEGRATIONS.md) and [verified management release record](../docs/MANAGEMENT_RELEASE_2026-10-21.md) extend this pack. The delivered Aothothe management execution PDF covers operator steps, Chrispine/Wilson/unfilled-role ownership and physical commissioning evidence. Original presentation records below retain their historical dates and scope.

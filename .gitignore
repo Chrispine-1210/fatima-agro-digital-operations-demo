@@ -61,3 +61,6 @@ __pycache__/
 /.fatima-local-export-*.json
 /.delivery-work/
 /aothothe-pack/evidence/private/
+
+# Self-hosted OCR assets are reproduced from pinned npm packages before build.
+/public/vendor/ocr/

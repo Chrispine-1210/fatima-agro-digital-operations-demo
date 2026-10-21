@@ -1,23 +1,21 @@
 # Current feature and evidence register
 
-Reviewed 18 October 2026 for the 19 October presentation. This register describes current source capabilities. The [release evidence record](../aothothe-pack/09-release-evidence.md) alone records checks completed on the final revision. Historical September test totals do not validate these workflows.
+Updated 21 October 2026. [Management release evidence](MANAGEMENT_RELEASE_2026-10-21.md) records current checks; historical presentation records remain in the Aothothe pack. All transactions are synthetic demonstration records.
 
-| Area | Current source capability | Verification / external boundary |
+| Area | Implemented behavior | Evidence / operating boundary |
 | --- | --- | --- |
-| Public catalogue | Search/filter/detail, enquiries, responsive states and image credits | Final browser/direct-route/image checks pending; prices, stock and photos are illustrative. |
-| Customer identity | Provider sign-in plus linked Fatima profile creation; provider-based recovery | Hosted authenticated rehearsal pending; local personas do not prove hosted recovery. |
-| Customer transactions | Cart quantities, checkout, unique order, timeline, own-record account | Final persistence, ownership and browser checks pending. No live settlement or dispatch. |
-| Accounting | Invoice, bill, captured payment/receipt, expense, credit, statement line, reconciliation and reports | Final linked-record/balance/reviewer checks pending. No fiscal submission or bank transfer. |
-| HR | Synthetic employee, onboarding, leave review, attendance and payroll preparation | Final role/privacy/validation checks pending. No statutory payroll processing or remittance. |
-| Procurement | Supplier, request, independent approval, PO, partial receipt, stock and supplier bill | Final workflow/duplicate/over-receipt checks pending. No supplier order sent. |
-| Administration | Units/functions, access requests/decisions, task evidence and audit | Final role/unit/independent-person checks pending. No actual company appointment implied. |
-| Notifications | Scoped account/order/procurement/stock events and read state | Final recipient/ownership checks pending. |
-| Campaigns | Preview, recipient count, consent, unsubscribe, deduplication, due capture and status | Captured only; no email delivery or automatic schedule execution. Final checks pending. |
-| Persistence and reset | Guarded D1 state document; local administrator reset | Final actual-runtime checks pending. Reset preserves accounts; hosted reset disabled. |
-| Recovery | Source/version rollback and documented isolated database recovery procedure | Backup/restore rehearsal pending; no recoverability or SLA claimed. |
+| Public experience | Photo/vector backgrounds, team actions, location/collection/delivery cards, responsive catalogue and enquiry/feedback states | Nine current public UX scenarios passed; product availability and prices need business confirmation. |
+| Customer identity and orders | Provider-linked profile, cart/checkout, own orders/timeline and own receipt print preview | Ownership/domain checks passed; current receipt refresh/printing browser checks passed. Hosted authenticated role rehearsal remains separate. |
+| Accounting | Invoices, bills, payments/numbered receipts, credits, expenses, statement matching and balanced reports | Source suites passed; receipt/metadata/printing browser evidence current. No bank settlement or fiscal submission. |
+| HR | Synthetic employee onboarding, attendance, independent leave review and payroll preparation | Current source suites cover controls; earlier internal UI evidence is historical. No salary release or statutory payroll processing. |
+| Procurement | Supplier, approved request, purchase order, partial goods receipt, linked stock/bill | Domain tests cover linked records and duplicate prevention. Supplier orders are not externally sent. |
+| Inventory devices | Unique SKU/barcode identities, USB/manual lookup, phone-camera and image decode, printable Code 128 labels | Actual local image-decoding round trip passed; synthetic camera track cleanup passed. Physical devices need commissioning. |
+| Stock control | Per-unit balances, evidenced counts, stale-count protection, independently approved transfers and audit history | Domain and current browser tests passed. Balances represent available units after order reservations. Transfers record completed handover; no transit/carrier tracking. |
+| Receipt capture | Phone/file preview, local OCR, editable extraction, explicit reference/note and fingerprint | Actual local OCR and metadata-only save passed with no observed external HTTP. Images remain on the device; no image archive. |
+| Printing | Protected numbered receipt, 58 mm/80 mm/A4 layouts and isolated print dialog | Current browser checks and synthetic PDFs passed; physical paper/scanner acceptance remains open. |
+| Locations | Internal address/town/country, optional GPS, explicit device location and map links | Mock GPS/save/refresh browser test passed; actual premises positions require verification. |
+| Administration | Units/functions, activation/access reviews, tasks and role-scoped audit | Source suites passed; administrator does not receive business approval rights. No actual recruitment or appointment implied. |
+| Notifications and campaigns | Scoped notifications/read state; consent-aware campaigns, unsubscribe and scheduled capture processing | Source suites passed. Email is captured, never sent; no automatic background sender. |
+| Persistence and recovery | Revision-guarded D1 state with additive migration; local reset and prior-version rollback | Migration preserves stock, money and access. Production backup/restore acceptance, retention and scale upgrade remain required. |
 
-The earlier seller/till-close, expansive CMS, statutory-stage, agent/dealer and contract dashboards described in September documents are not current verified capabilities merely because historical tests or screenshots exist. Demonstrate only current implemented and rehearsed paths. Future live integrations, market availability and regulated product offers require their own evidence and acceptance gates.
-
-## Candidate verification - 19 October
-
-On 19 October, 34 source tests, TypeScript, the production build and 2 release-artifact checks passed. Lint reported 0 errors and 17 warnings; the secret scan checked 176 working files and 4 commits. Installed production audit: 0 vulnerabilities; full toolchain audit: 24 vulnerable-package records (18 high, 5 moderate, 1 low, 0 critical). All three local browser journeys passed across two recorded runs: customer/public 2 passes and the affected internal journey 1 pass. These are combined verified journeys, not a claimed single three-test green run. Local recovery failed at export and is being corrected; deployment and authenticated hosted rehearsal remain open. See document 09 for exact logs and limits.
+[Inventory execution](INVENTORY-EXECUTION.md) provides practical steps, hardware acceptance and team ownership. [Architecture](ARCHITECTURE.md) describes runtime/control boundaries. Current release identifiers and delivered artifacts are recorded after publication in the accompanying RELEASE.json.

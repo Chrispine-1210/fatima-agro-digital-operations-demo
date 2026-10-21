@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 test('built browser code excludes database state, private identity and server role configuration', async () => {
   let checked = 0;
@@ -29,5 +30,19 @@ test('all advertised script and stylesheet preloads exist in the release', async
   for (const asset of assets) {
     assert.ok(asset.startsWith('/assets/'), `Unexpected release resource: ${asset}`);
     await assert.doesNotReject(access(new URL(`../dist/client${asset}`, import.meta.url)), `Missing preload: ${asset}`);
+  }
+});
+
+test('self-hosted OCR assets match the pinned build manifest and hosting size limit', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../docs/ocr-asset-manifest.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.dependencies['tesseract.js'], '7.0.0');
+  assert.equal(manifest.dependencies['tesseract.js-core'], '7.0.0');
+  assert.ok(manifest.assets.length >= 5);
+  for (const asset of manifest.assets) {
+    assert.ok(asset.path.startsWith('/vendor/ocr/') && !asset.path.includes('..'));
+    const bytes = await readFile(new URL(`../dist/client${asset.path}`, import.meta.url));
+    assert.equal(bytes.byteLength, asset.bytes, asset.path);
+    assert.ok(bytes.byteLength > 0 && bytes.byteLength < 25 * 1024 * 1024, asset.path);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), asset.sha256, asset.path);
   }
 });

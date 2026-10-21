@@ -1,7 +1,9 @@
 import type * as T from "../portal-types";
+import { defaultSku } from "./state-migrations";
 
 export type PortalState = {
   revision: number; users: T.SessionUser[]; profiles: T.CustomerProfile[]; products: T.Product[]; carts: T.CartLine[]; orders: T.Order[]; invoices: T.Invoice[]; suppliers: T.Supplier[]; bills: T.Bill[]; payments: T.Payment[]; receipts: T.Receipt[]; expenses: T.Expense[]; creditNotes: T.CreditNote[]; journals: T.JournalEntry[]; statementLines: T.StatementLine[]; employees: T.Employee[]; leaveRequests: T.LeaveRequest[]; attendance: T.AttendanceEntry[]; payrollPreparations: T.PayrollPreparation[]; purchaseRequests: T.PurchaseRequest[]; purchaseOrders: T.PurchaseOrder[]; goodsReceipts: T.GoodsReceipt[]; stockMovements: T.StockMovement[]; units: T.Unit[]; tasks: T.Task[]; roleRequests: T.RoleRequest[]; notifications: T.Notification[]; campaigns: T.Campaign[]; capturedMessages: T.CapturedMessage[]; audit: T.AuditEvent[]; enquiries: T.Enquiry[]; reviews: T.Review[]; supportRequests: T.SupportRequest[];
+  stockAdjustments: T.StockAdjustment[]; stockTransfers: T.StockTransfer[]; receiptCaptures: T.ReceiptCapture[];
   idempotency: { key: string; userId: string; action: string; result: unknown }[]; rateLimits: { key: string; at: string }[]; stockByUnit: Record<string, number>; revokedBefore: Record<string, string>;
 };
 
@@ -15,12 +17,12 @@ export function initialState(): PortalState {
     ["demo-sprayer", "Knapsack sprayer", "Equipment", "16 L", 89500, 27, 35, "sprayer"],
   ] as const;
   const notes: Record<string, string> = { fertiliser: "Representative 50 kg DAP fertiliser bags; supplied brand and formulation require confirmation.", urea: "Representative prilled urea bag; supplied brand and packaging require confirmation.", maize: "Maize grain sacks; not certified seed packaging.", groundnuts: "Shelled groundnuts; seed grade and variety are unverified.", "crop-care": "Representative 5 L herbicide container; supplied brand, formulation and registration require confirmation.", sprayer: "Representative 16 L sprayer; Fatima brand and model are unconfirmed.", placeholder: "Product photograph awaiting verification; no packaging representation." };
-  const products = definitions.map(([id, name, category, pack, price, stock, reorderLevel, photo]) => ({ id, name, category, pack, price, stock, reorderLevel, image: `/images/products/${photo}.jpg`, imageAlt: notes[photo], imageNote: notes[photo], description: `${pack} sample listing for ${name.toLowerCase()}. Brand, suitability, availability and final price require confirmation. Prices and stock in this presentation are demonstration data.`, taxCode: "REVIEW_REQUIRED", taxRate: 0 }));
+  const products: T.Product[] = definitions.map(([id, name, category, pack, price, stock, reorderLevel, photo]) => ({ id, sku: defaultSku(id), barcode: defaultSku(id), barcodeKind: "Internal Code 128", name, category, pack, price, stock, reorderLevel, image: `/images/products/${photo}.jpg`, imageAlt: notes[photo], imageNote: notes[photo], description: `${pack} sample listing for ${name.toLowerCase()}. Brand, suitability, availability and final price require confirmation. Prices and stock in this presentation are demonstration data.`, taxCode: "REVIEW_REQUIRED", taxRate: 0 }));
   const stockByUnit = Object.fromEntries(products.map((p) => [`BR-DEMO-01:${p.id}`, p.stock]));
   return { revision: 0, users: [], profiles: [], products, stockByUnit, carts: [], orders: [], invoices: [], suppliers: [], bills: [], payments: [], receipts: [], expenses: [], creditNotes: [], journals: [], statementLines: [], employees: [], leaveRequests: [], attendance: [], payrollPreparations: [], purchaseRequests: [], purchaseOrders: [], goodsReceipts: [], stockMovements: [], units: [
     { id: "HQ", name: "Fatima Agro Head Office", kind: "Headquarters", status: "Active", functions: ["Management", "Finance", "HR", "Procurement", "Security"], evidence: "Presentation headquarters model — operational assignments pending confirmation", createdBy: "system" },
     { id: "BR-DEMO-01", name: "Demonstration branch", kind: "Branch", status: "Active", functions: ["Sales", "Inventory", "Procurement requests", "Tasks", "MRA source evidence"], evidence: "Synthetic branch for presentation only", createdBy: "system" },
-  ], tasks: [], roleRequests: [], notifications: [], campaigns: [], capturedMessages: [], audit: [], enquiries: [], reviews: [], supportRequests: [], idempotency: [], rateLimits: [], revokedBefore: {} };
+  ], stockAdjustments: [], stockTransfers: [], receiptCaptures: [], tasks: [], roleRequests: [], notifications: [], campaigns: [], capturedMessages: [], audit: [], enquiries: [], reviews: [], supportRequests: [], idempotency: [], rateLimits: [], revokedBefore: {} };
 }
 
 export const localPersonas: Record<string, T.SessionUser> = {

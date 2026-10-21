@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { initialState, type PortalState } from "./seed";
 import { PortalError, ensure } from "./errors";
+import { normalizeState } from "./state-migrations";
 
 type Bindings = { DB?: D1Database; HQ_ADMIN_EMAILS?: string; FATIMA_BOOTSTRAP_CEO_EMAILS?: string; FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS?: string; FATIMA_LOCAL_DEMO?: string; FATIMA_LOCAL_SESSION_SECRET?: string; FATIMA_TRUSTED_HOST?: string };
 export function bindings(): Bindings { return env as unknown as Bindings; }
@@ -17,7 +18,7 @@ export async function readState(): Promise<PortalState> {
     }
   } catch { throw new PortalError("Demonstration storage is not ready. Apply the packaged database migration before the presentation.", 503, "STORAGE_NOT_READY"); }
   ensure(row, "Demonstration storage could not be initialized.", 503, "STORAGE_UNAVAILABLE");
-  const state = JSON.parse(row.payload) as PortalState; state.revision = row.revision; return state;
+  const state = normalizeState(JSON.parse(row.payload) as PortalState); state.revision = row.revision; return state;
 }
 /** All changed ledgers and audit entries share one guarded D1 update. No mutation is partially committed. */
 export async function mutateState<R>(change: (state: PortalState) => { state: PortalState; result: R }): Promise<{ result: R; revision: number }> {

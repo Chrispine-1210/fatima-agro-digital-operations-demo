@@ -3,6 +3,8 @@ import "./globals.css";
 import "@/components/storefront.css";
 import "@/components/storefront-theme.css";
 import "@/components/internal-portal.css";
+import "@/components/inventory-tools.css";
+import "@/components/receipt-tools.css";
 
 export const metadata: Metadata = {
   title: "Fatima Agro | Farm Inputs and Customer Services",

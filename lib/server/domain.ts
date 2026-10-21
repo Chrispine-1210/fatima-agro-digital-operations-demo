@@ -2,6 +2,7 @@ import type * as T from "../portal-types";
 import { capabilities, canAccessModule, canPerform, scopedUnit, allRoles } from "./permissions";
 import { ensure, integer, textField, emailField, dateField } from "./errors";
 import { initialState, type PortalState } from "./seed";
+import { normalizeState } from "./state-migrations";
 
 type Data = Record<string, unknown>;
 const now = () => new Date().toISOString();
@@ -16,7 +17,44 @@ function canReadNotification(user: T.SessionUser, notification: T.Notification) 
 function captureTransactional(state: PortalState, userId: string, title: string, body: string) { const profile = state.profiles.find((p) => p.id === userId); if (profile) state.capturedMessages.unshift({ id: id("MSG"), userId, to: profile.email, subject: title, body, kind: "transactional", campaignId: "", status: "Captured — not sent", createdAt: now(), unsubscribeToken: crypto.randomUUID() }); }
 function journal(state: PortalState, reference: string, description: string, lines: T.JournalLine[]) { ensure(lines.every((l) => Number.isSafeInteger(l.debit) && Number.isSafeInteger(l.credit) && l.debit >= 0 && l.credit >= 0 && !(l.debit && l.credit)), "Invalid ledger entry."); ensure(lines.reduce((n, l) => n + l.debit - l.credit, 0) === 0, "The ledger entry does not balance."); state.journals.unshift({ id: id("JNL"), reference, description, at: now(), lines }); }
 function line(account: string, debit: number, credit: number): T.JournalLine { return { account, debit, credit }; }
-function updateStock(state: PortalState, productId: string, quantity: number, unitId: string, reference: string, user: T.SessionUser, reason: string) { const product = findRecord(state.products, productId, "Product"); const key = `${unitId}:${productId}`; const balance = state.stockByUnit[key] ?? 0; ensure(balance + quantity >= 0, "Not enough demonstration stock is available at this branch.", 409, "STOCK"); state.stockByUnit[key] = balance + quantity; product.stock = Object.entries(state.stockByUnit).filter(([k]) => k.endsWith(`:${productId}`)).reduce((n, [, count]) => n + count, 0); state.stockMovements.unshift({ id: id("MOV"), productId, quantity, reason, reference, unitId, at: now(), actorId: user.id }); if (state.stockByUnit[key] < product.reorderLevel) notify(state, "", `Low sample stock: ${product.name}`, `${state.stockByUnit[key]} units remain at ${unitId}; review replenishment.`, "stock.low", "storekeeper", unitId); }
+const MAX_STOCK = 1_000_000_000_000;
+const MAX_STOCK_OPERATION = 1_000_000;
+function stockBalance(state: PortalState, unitId: string, productId: string) { return integer(state.stockByUnit[`${unitId}:${productId}`] ?? 0, "Stored stock balance", 0, MAX_STOCK); }
+function updateStock(state: PortalState, productId: string, quantity: number, unitId: string, reference: string, user: T.SessionUser, reason: string) {
+  const product = findRecord(state.products, productId, "Product");
+  integer(quantity, "Stock change", -MAX_STOCK, MAX_STOCK);
+  const key = `${unitId}:${productId}`, next = stockBalance(state, unitId, productId) + quantity;
+  ensure(next >= 0, "Not enough demonstration stock is available at this branch.", 409, "STOCK");
+  integer(next, "Resulting stock balance", 0, MAX_STOCK);
+  const total = Object.entries(state.stockByUnit).filter(([k]) => k.endsWith(`:${productId}`) && k !== key).reduce((sum, [, count]) => integer(sum + integer(count, "Stored stock balance", 0, MAX_STOCK), "Combined stock balance", 0, MAX_STOCK), next);
+  state.stockByUnit[key] = next;
+  product.stock = total;
+  state.stockMovements.unshift({ id: id("MOV"), productId, quantity, reason, reference, unitId, at: now(), actorId: user.id });
+  if (next < product.reorderLevel) notify(state, "", `Low sample stock: ${product.name}`, `${next} units remain at ${unitId}; review replenishment.`, "stock.low", "storekeeper", unitId);
+}
+function inventoryDestination(state: PortalState, unitId: unknown) {
+  const unit = findRecord(state.units, unitId, "Destination unit");
+  ensure(unit.status === "Active", "The destination unit is awaiting activation.");
+  ensure(unit.functions.includes("Inventory"), "The destination unit is not approved for Inventory.", 403);
+  return unit;
+}
+function inventorySource(state: PortalState, unitId: unknown, user: T.SessionUser) {
+  const unit = activeUnit(state, unitId, user, "Inventory");
+  ensure(unit.functions.includes("Inventory"), "The unit is not approved for Inventory.", 403);
+  return unit;
+}
+function decisionField(value: unknown): "Approved" | "Declined" { ensure(value === "Approved" || value === "Declined", "Choose Approved or Declined."); return value; }
+function receiptDocuments(state: PortalState, customerId?: string): T.ReceiptDocument[] {
+  return state.receipts.filter(receipt => !customerId || receipt.customerId === customerId).flatMap(receipt => {
+    const invoice = state.invoices.find(item => item.id === receipt.invoiceId && item.customerId === receipt.customerId);
+    const payment = state.payments.find(item => item.id === receipt.paymentId && item.kind === "customer" && item.referenceId === receipt.invoiceId && item.amount === receipt.amount);
+    const unit = invoice && state.units.find(item => item.id === invoice.unitId);
+    if (!invoice || !payment || !unit) return [];
+    const profile = state.profiles.find(item => item.id === receipt.customerId);
+    const order = state.orders.find(item => item.id === invoice.orderId && item.customerId === receipt.customerId);
+    return [{ receipt, invoice, payment: { id: payment.id, amount: payment.amount, method: payment.method, createdAt: payment.createdAt }, customer: { name: profile?.name ?? "Customer account", email: profile?.email ?? "" }, order, unit: { id: unit.id, name: unit.name, address: unit.address, town: unit.town, country: unit.country } }];
+  });
+}
 function invoiceStatus(invoice: T.Invoice) { invoice.status = invoice.credited >= invoice.total ? "Credited" : invoice.paid >= invoice.total - invoice.credited ? "Paid" : invoice.paid > 0 ? "Part paid" : "Unpaid"; }
 function createInvoice(state: PortalState, customerId: string, total: number, tax: number, unitId: string, orderId: string, dueDate: string, note: string) { const invoice: T.Invoice = { id: id("INV"), customerId, orderId, total, tax, unitId, credited: 0, paid: 0, status: "Unpaid", createdAt: now(), dueDate, note }; state.invoices.unshift(invoice); journal(state, invoice.id, "Demonstration customer invoice", [line("Accounts receivable", total, 0), line("Sales revenue", 0, total - tax), line("Tax liability — unverified treatment", 0, tax)]); return invoice; }
 function createBill(state: PortalState, supplierId: string, total: number, unitId: string, purchaseOrderId = "", goodsReceiptId = "", note = "") { const bill: T.Bill = { id: id("BILL"), supplierId, total, paid: 0, unitId, purchaseOrderId, goodsReceiptId, status: "Unpaid", createdAt: now(), note }; state.bills.unshift(bill); journal(state, bill.id, "Demonstration supplier bill", [line("Inventory purchases", total, 0), line("Accounts payable", 0, total)]); return bill; }
@@ -29,17 +67,22 @@ function captureCampaign(state: PortalState, campaign: T.Campaign, user: T.Sessi
 
 export function financeReports(state: PortalState): T.FinanceReports { const balance = (account: string) => state.journals.flatMap((j) => j.lines).filter((l) => l.account === account).reduce((n, l) => n + l.debit - l.credit, 0); const debits = state.journals.flatMap((j) => j.lines).reduce((n, l) => n + l.debit, 0); const journalCredits = state.journals.flatMap((j) => j.lines).reduce((n, l) => n + l.credit, 0); return { receivables: balance("Accounts receivable"), payables: 0 - balance("Accounts payable"), cash: balance("Demo cash and bank"), revenue: 0 - balance("Sales revenue") - balance("Sales returns"), taxLiability: 0 - balance("Tax liability — unverified treatment"), expenses: balance("Operating expenses"), customerPayments: state.payments.filter((p) => p.kind === "customer").reduce((n, p) => n + p.amount, 0), supplierPayments: state.payments.filter((p) => p.kind === "supplier").reduce((n, p) => n + p.amount, 0), credits: state.creditNotes.reduce((n, c) => n + c.amount, 0), debits, journalCredits, balanced: debits === journalCredits }; }
 
-export function snapshot(state: PortalState, user: T.SessionUser | null, module: T.ModuleId): T.PortalSnapshot {
+export function snapshot(original: PortalState, user: T.SessionUser | null, module: T.ModuleId): T.PortalSnapshot {
   ensure(canAccessModule(user, module), user ? "Your approved role does not include this workspace." : "Sign in to continue.", user ? 403 : 401, user ? "FORBIDDEN" : "UNAUTHENTICATED");
+  const state = normalizeState(original);
   const base: T.PortalSnapshot = { module, mode: "captured demonstration", revision: state.revision, capabilities: capabilities(user) };
   if (module === "public") return { ...base, products: catalogProducts(state), reviews: state.reviews.filter((r) => r.status === "Published").map((r) => ({ ...r, customerId: "", orderId: "" })), capabilities: ["enquiry.create"] };
   const current = user!;
   const ownNotifications = state.notifications.filter((notification) => canReadNotification(current, notification));
   if (module === "notifications") return { ...base, notifications: ownNotifications, capturedMessages: state.capturedMessages.filter((m) => m.userId === current.id) };
-  if (module === "customer") return { ...base, products: catalogProducts(state), profile: state.profiles.find((p) => p.id === current.id) ?? null, cart: state.carts.filter((c) => c.customerId === current.id), orders: state.orders.filter((o) => o.customerId === current.id), invoices: state.invoices.filter((i) => i.customerId === current.id), receipts: state.receipts.filter((r) => r.customerId === current.id), notifications: ownNotifications, enquiries: state.enquiries.filter((e) => e.customerId === current.id), reviews: state.reviews.filter((r) => r.customerId === current.id), supportRequests: state.supportRequests.filter((s) => s.customerId === current.id) };
-  if (module === "finance") return { ...base, profiles: state.profiles, orders: state.orders, invoices: state.invoices, bills: state.bills, payments: state.payments, receipts: state.receipts, expenses: state.expenses, creditNotes: state.creditNotes, journals: state.journals, statementLines: state.statementLines, reports: financeReports(state), suppliers: state.suppliers, products: state.products, units: state.units };
+  if (module === "customer") return { ...base, products: catalogProducts(state), profile: state.profiles.find((p) => p.id === current.id) ?? null, cart: state.carts.filter((c) => c.customerId === current.id), orders: state.orders.filter((o) => o.customerId === current.id), invoices: state.invoices.filter((i) => i.customerId === current.id), receipts: state.receipts.filter((r) => r.customerId === current.id), receiptDocuments: receiptDocuments(state, current.id), notifications: ownNotifications, enquiries: state.enquiries.filter((e) => e.customerId === current.id), reviews: state.reviews.filter((r) => r.customerId === current.id), supportRequests: state.supportRequests.filter((s) => s.customerId === current.id) };
+  if (module === "finance") return { ...base, profiles: state.profiles, orders: state.orders, invoices: state.invoices, bills: state.bills, payments: state.payments, receipts: state.receipts, receiptDocuments: receiptDocuments(state), receiptCaptures: state.receiptCaptures.filter(item => item.targetType === "receipt" || item.targetType === "expense"), expenses: state.expenses, creditNotes: state.creditNotes, journals: state.journals, statementLines: state.statementLines, reports: financeReports(state), suppliers: state.suppliers, products: state.products, units: state.units };
   if (module === "hr") return { ...base, employees: state.employees, leaveRequests: state.leaveRequests, attendance: state.attendance, payrollPreparations: state.payrollPreparations, units: state.units };
-  if (module === "procurement") { const unit = scopedUnit(current); const filter = <S extends { unitId: string }>(rows: S[]) => rows.filter((r) => !unit || r.unitId === unit); return { ...base, products: state.products.map((p) => unit ? { ...p, stock: state.stockByUnit[`${unit}:${p.id}`] ?? 0 } : p), suppliers: state.suppliers, purchaseRequests: filter(state.purchaseRequests), purchaseOrders: filter(state.purchaseOrders), goodsReceipts: filter(state.goodsReceipts), stockMovements: filter(state.stockMovements), orders: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.orders) : [], enquiries: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.enquiries) : [], supportRequests: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.supportRequests) : [], units: state.units.filter((u) => !unit || u.id === unit) }; }
+  if (module === "procurement") {
+    const unit = scopedUnit(current), units = state.units.filter(item => !unit || item.id === unit);
+    const filter = <S extends { unitId: string }>(rows: S[]) => rows.filter(item => !unit || item.unitId === unit);
+    return { ...base, products: state.products.map(product => unit ? { ...product, stock: stockBalance(state, unit, product.id) } : product), suppliers: state.suppliers, purchaseRequests: filter(state.purchaseRequests), purchaseOrders: filter(state.purchaseOrders), goodsReceipts: filter(state.goodsReceipts), stockMovements: filter(state.stockMovements), stockBalances: units.flatMap(item => state.products.map(product => ({ unitId: item.id, productId: product.id, quantity: stockBalance(state, item.id, product.id) }))), stockAdjustments: filter(state.stockAdjustments), stockTransfers: state.stockTransfers.filter(item => !unit || item.fromUnitId === unit || item.toUnitId === unit), transferDestinations: state.units.filter(item => item.status === "Active" && item.functions.includes("Inventory")).map(item => ({ id: item.id, name: item.name, kind: item.kind })), receiptCaptures: filter(state.receiptCaptures.filter(item => item.targetType === "goods-receipt")), orders: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.orders) : [], enquiries: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.enquiries) : [], supportRequests: ["sales", "operations-director", "branch-manager"].includes(current.role) ? filter(state.supportRequests) : [], units };
+  }
   if (module === "communications") return { ...base, profiles: state.profiles.map((p) => ({ ...p, phone: "", address: "" })), campaigns: state.campaigns.filter((c) => c.createdBy === current.id || current.role === "operations-director"), capturedMessages: state.capturedMessages.filter((m) => m.kind === "campaign" && state.campaigns.some((c) => c.id === m.campaignId && (c.createdBy === current.id || current.role === "operations-director"))), reviews: state.reviews, products: state.products };
   const unit = scopedUnit(current);
   if (["finance-director", "hr-director"].includes(current.role)) { const requests = state.roleRequests.filter((r) => r.approverRole === current.role); return { ...base, units: state.units.filter((u) => u.id === "HQ" || requests.some((r) => r.unitId === u.id)), roleRequests: requests, users: [], tasks: [], audit: state.audit.filter((a) => a.actorId === current.id).slice(0, 100) }; }
@@ -53,14 +96,29 @@ export function snapshot(state: PortalState, user: T.SessionUser | null, module:
 
 export function applyAction(original: PortalState, user: T.SessionUser | null, action: string, data: Data): { state: PortalState; result: unknown; message: string } {
   ensure(canPerform(user, action), user ? "Your approved role cannot perform this action." : "Sign in to continue.", user ? 403 : 401, "FORBIDDEN");
-  const state = structuredClone(original);
+  const state = normalizeState(original);
   const current = user;
   let result: unknown = null;
   let target = "";
   let message = "Demonstration record saved.";
-  const idempotent = ["checkout", "finance.payment", "procurement.receive"].includes(action);
+  const idempotent = ["checkout", "finance.payment", "procurement.receive", "inventory.adjustmentRequest", "inventory.adjustmentDecision", "inventory.transferRequest", "inventory.transferDecision", "finance.receiptCapture"].includes(action);
   let key = "";
-  if (idempotent) { key = validIdempotency(data.idempotencyKey); const previous = state.idempotency.find((x) => x.userId === current?.id && x.action === action && x.key === key); if (previous) return { state: original, result: previous.result, message: "This request was already recorded; no duplicate was created." }; }
+  if (idempotent) {
+    key = validIdempotency(data.idempotencyKey);
+    const previous = state.idempotency.find(item => item.userId === current?.id && item.action === action && item.key === key);
+    if (previous) {
+      if (previous.result && typeof previous.result === "object") {
+        const record = previous.result as Record<string, unknown>;
+        if (typeof record.unitId === "string") inScope(current!, record.unitId);
+        if (typeof record.fromUnitId === "string") inScope(current!, record.fromUnitId);
+        if (action === "finance.receiptCapture") {
+          const roles = record.targetType === "goods-receipt" ? ["procurement", "storekeeper"] : ["finance", "finance-director"];
+          ensure(roles.includes(current!.role), "Your current role cannot access this evidence record.", 403);
+        }
+      }
+      return { state: original, result: previous.result, message: "This request was already recorded; no duplicate was created." };
+    }
+  }
   switch (action) {
     case "customer.register": {
       ensure(!state.profiles.some((p) => p.id === current!.id), "Your profile already exists.", 409);
@@ -125,6 +183,113 @@ export function applyAction(original: PortalState, user: T.SessionUser | null, a
     case "procurement.approve": { const request = findRecord(state.purchaseRequests, data.requestId, "Purchase request"); inScope(current!, request.unitId); ensure(request.status === "Pending", "The request has already been decided.", 409); ensure(request.requestedBy !== current!.id, "You cannot approve your own purchase request.", 403); ensure(data.decision === "Approved" || data.decision === "Declined", "Choose Approved or Declined."); request.status = data.decision; request.approvedBy = current!.id; notify(state, request.requestedBy, "Purchase request reviewed", `${request.id}: ${request.status}`, "procurement.reviewed"); result = request; break; }
     case "procurement.order": { const request = findRecord(state.purchaseRequests, data.requestId, "Purchase request"); inScope(current!, request.unitId); ensure(request.status === "Approved", "The request needs independent approval before a purchase order.", 409); const supplier = findRecord(state.suppliers, data.supplierId, "Supplier"); const po: T.PurchaseOrder = { id: id("PO"), requestId: request.id, supplierId: supplier.id, productId: request.productId, quantity: request.quantity, received: 0, unitPrice: integer(data.unitPrice, "Unit cost"), unitId: request.unitId, status: "Issued in demonstration", createdAt: now(), issuedBy: current!.id }; integer(po.quantity * po.unitPrice, "Purchase order total"); state.purchaseOrders.unshift(po); request.status = "Ordered"; result = po; message = "Demonstration purchase order created; no supplier commitment or email was issued."; break; }
     case "procurement.receive": { const po = findRecord(state.purchaseOrders, data.purchaseOrderId, "Purchase order"); inScope(current!, po.unitId); activeUnit(state, po.unitId, current!, "Inventory"); const quantity = integer(data.quantity, "Received quantity", 1, po.quantity - po.received); const evidence = textField(data.evidence, "Delivery evidence", 200), grnId = id("GRN"); const bill = createBill(state, po.supplierId, integer(quantity * po.unitPrice, "Received cost"), po.unitId, po.id, grnId, "Auto-created from a demonstration goods receipt; not a supplier-issued tax invoice."); const receipt: T.GoodsReceipt = { id: grnId, purchaseOrderId: po.id, productId: po.productId, quantity, evidence, unitId: po.unitId, createdAt: now(), receivedBy: current!.id, billId: bill.id }; state.goodsReceipts.unshift(receipt); po.received += quantity; po.status = po.received === po.quantity ? "Received" : "Part received"; updateStock(state, po.productId, quantity, po.unitId, receipt.id, current!, "Demonstration goods received"); result = receipt; break; }
+    case "inventory.identify": {
+      const product = findRecord(state.products, data.productId, "Product");
+      const sku = textField(data.sku, "SKU", 32).toUpperCase(), barcode = textField(data.barcode, "Internal barcode", 48).toUpperCase();
+      ensure(/^[A-Z0-9][A-Z0-9._-]{2,31}$/.test(sku), "SKU must contain 3-32 letters, numbers, dots, underscores or hyphens.");
+      ensure(/^[A-Z0-9][A-Z0-9._-]{0,47}$/.test(barcode), "Internal barcode must contain 1-48 letters, numbers, dots, underscores or hyphens.");
+      ensure(!state.products.some(item => item.id !== product.id && [item.id.toUpperCase(), item.sku.toUpperCase(), item.barcode.toUpperCase()].some(identifier => identifier === sku || identifier === barcode)), "This SKU or barcode already identifies another product.", 409, "IDENTIFIER_CONFLICT");
+      product.sku = sku; product.barcode = barcode; product.barcodeKind = "Internal Code 128";
+      result = product; message = "Internal product identifiers saved. Existing orders keep their product reference."; break;
+    }
+    case "inventory.adjustmentRequest": {
+      const unit = inventorySource(state, data.unitId, current!), product = findRecord(state.products, data.productId, "Product");
+      const expectedQuantity = integer(data.expectedQuantity, "Expected quantity", 0, MAX_STOCK), countedQuantity = integer(data.countedQuantity, "Counted quantity", 0, MAX_STOCK_OPERATION);
+      ensure(stockBalance(state, unit.id, product.id) === expectedQuantity, "Stock changed before this count was saved. Refresh and recount.", 409, "STOCK_CHANGED");
+      const adjustment: T.StockAdjustment = { id: id("COUNT"), productId: product.id, unitId: unit.id, expectedQuantity, countedQuantity, quantityChange: countedQuantity - expectedQuantity, reason: textField(data.reason, "Count reason", 300), evidence: textField(data.evidence, "Count evidence", 300), status: "Pending", requestedBy: current!.id, createdAt: now() };
+      state.stockAdjustments.unshift(adjustment);
+      notify(state, "", "Stock count needs independent review", `${adjustment.id}: ${product.sku} at ${unit.name}.`, "inventory.count", "operations-director");
+      result = adjustment; message = "Count submitted for independent review. Available stock has not changed."; break;
+    }
+    case "inventory.adjustmentDecision": {
+      const adjustment = findRecord(state.stockAdjustments, data.adjustmentId, "Stock count"), decision = decisionField(data.decision);
+      ensure(adjustment.status === "Pending", "This stock count has already been decided.", 409);
+      ensure(adjustment.requestedBy !== current!.id, "A separate reviewer must decide your stock count.", 403);
+      inScope(current!, adjustment.unitId);
+      if (decision === "Approved") {
+        inventorySource(state, adjustment.unitId, current!);
+        integer(adjustment.expectedQuantity, "Stored expected quantity", 0, MAX_STOCK);
+        integer(adjustment.countedQuantity, "Stored counted quantity", 0, MAX_STOCK_OPERATION);
+        ensure(stockBalance(state, adjustment.unitId, adjustment.productId) === adjustment.expectedQuantity, "Stock changed after this count. Decline it and submit a fresh count.", 409, "STOCK_CHANGED");
+        ensure(Number.isSafeInteger(adjustment.quantityChange) && adjustment.quantityChange === adjustment.countedQuantity - adjustment.expectedQuantity, "The stored count requires a reviewed recovery.", 409, "COUNT_INVALID");
+        if (adjustment.quantityChange) updateStock(state, adjustment.productId, adjustment.quantityChange, adjustment.unitId, adjustment.id, current!, "Approved demonstration stock count");
+      }
+      adjustment.status = decision; adjustment.decidedBy = current!.id; adjustment.decidedAt = now();
+      notify(state, adjustment.requestedBy, "Stock count reviewed", `${adjustment.id}: ${decision}.`, "inventory.countDecision");
+      result = adjustment; message = decision === "Approved" ? "Reviewed count applied to the inventory ledger." : "Count declined. Available stock has not changed."; break;
+    }
+    case "inventory.transferRequest": {
+      const source = inventorySource(state, data.fromUnitId, current!), destination = inventoryDestination(state, data.toUnitId), product = findRecord(state.products, data.productId, "Product");
+      ensure(source.id !== destination.id, "Choose two different operating units.");
+      const quantity = integer(data.quantity, "Transfer quantity", 1, MAX_STOCK_OPERATION);
+      ensure(stockBalance(state, source.id, product.id) >= quantity, "Not enough demonstration stock is available at the source unit.", 409, "STOCK");
+      const transfer: T.StockTransfer = { id: id("TRANSFER"), productId: product.id, fromUnitId: source.id, toUnitId: destination.id, quantity, reason: textField(data.reason, "Transfer reason", 300), evidence: textField(data.evidence, "Transfer evidence", 300), status: "Pending", requestedBy: current!.id, createdAt: now() };
+      state.stockTransfers.unshift(transfer);
+      notify(state, "", "Stock transfer needs independent review", `${transfer.id}: ${source.name} to ${destination.name}.`, "inventory.transfer", "operations-director");
+      result = transfer; message = "Transfer submitted for independent review. No stock has moved."; break;
+    }
+    case "inventory.transferDecision": {
+      const transfer = findRecord(state.stockTransfers, data.transferId, "Stock transfer"), decision = decisionField(data.decision);
+      ensure(transfer.status === "Pending", "This stock transfer has already been decided.", 409);
+      ensure(transfer.requestedBy !== current!.id, "A separate reviewer must decide your stock transfer.", 403);
+      inScope(current!, transfer.fromUnitId);
+      if (decision === "Approved") {
+        inventorySource(state, transfer.fromUnitId, current!); inventoryDestination(state, transfer.toUnitId);
+        ensure(transfer.fromUnitId !== transfer.toUnitId, "The stored transfer requires two different units.");
+        const quantity = integer(transfer.quantity, "Transfer quantity", 1, MAX_STOCK_OPERATION);
+        updateStock(state, transfer.productId, -quantity, transfer.fromUnitId, transfer.id, current!, "Approved demonstration transfer out");
+        updateStock(state, transfer.productId, quantity, transfer.toUnitId, transfer.id, current!, "Approved demonstration transfer in");
+      }
+      transfer.status = decision; transfer.decidedBy = current!.id; transfer.decidedAt = now();
+      notify(state, transfer.requestedBy, "Stock transfer reviewed", `${transfer.id}: ${decision}.`, "inventory.transferDecision");
+      result = transfer; message = decision === "Approved" ? "Transfer posted as a matched pair of inventory movements. No transport provider was contacted." : "Transfer declined. Available stock has not changed."; break;
+    }
+    case "admin.unitLocation": {
+      const unit = findRecord(state.units, data.unitId, "Operating unit"); inScope(current!, unit.id);
+      const address = textField(data.address, "Address", 300), town = textField(data.town, "Town", 100), country = textField(data.country, "Country", 100), locationNote = textField(data.locationNote, "Location reference", 300, true);
+      const absent = (value: unknown) => value === undefined || value === null || value === "";
+      const noLatitude = absent(data.latitude), noLongitude = absent(data.longitude);
+      ensure(noLatitude === noLongitude, "Provide both latitude and longitude, or clear both.");
+      if (!noLatitude) {
+        ensure(typeof data.latitude === "number" && Number.isFinite(data.latitude) && data.latitude >= -90 && data.latitude <= 90, "Latitude must be a number between -90 and 90.");
+        ensure(typeof data.longitude === "number" && Number.isFinite(data.longitude) && data.longitude >= -180 && data.longitude <= 180, "Longitude must be a number between -180 and 180.");
+        unit.latitude = data.latitude; unit.longitude = data.longitude;
+      } else { delete unit.latitude; delete unit.longitude; }
+      Object.assign(unit, { address, town, country, locationNote, locationUpdatedAt: now(), locationUpdatedBy: current!.id });
+      result = unit; message = "Operating location saved. Unit activation and access approvals are unchanged."; break;
+    }
+    case "finance.receiptCapture": {
+      const allowedFields = ["targetType", "targetId", "source", "fileName", "mimeType", "byteLength", "sha256", "reference", "note", "idempotencyKey"];
+      ensure(Object.keys(data).every(key => allowedFields.includes(key)), "Save evidence metadata only; image contents and unknown fields are not accepted.");
+      ensure(data.targetType === "receipt" || data.targetType === "goods-receipt" || data.targetType === "expense", "Choose a receipt, goods receipt or expense record.");
+      let unitId: string, targetId: string;
+      if (data.targetType === "goods-receipt") {
+        ensure(["procurement", "storekeeper"].includes(current!.role), "Goods-receipt evidence belongs to procurement and stores.", 403);
+        const receipt = findRecord(state.goodsReceipts, data.targetId, "Goods receipt");
+        inScope(current!, receipt.unitId); unitId = receipt.unitId; targetId = receipt.id;
+      } else {
+        ensure(["finance", "finance-director"].includes(current!.role), "Payment receipt and expense evidence belongs to Accounting.", 403);
+        if (data.targetType === "receipt") {
+          const receipt = findRecord(state.receipts, data.targetId, "Payment receipt"), invoice = findRecord(state.invoices, receipt.invoiceId, "Receipt invoice");
+          const payment = findRecord(state.payments, receipt.paymentId, "Receipt payment");
+          ensure(invoice.customerId === receipt.customerId && payment.kind === "customer" && payment.referenceId === invoice.id && payment.amount === receipt.amount, "The receipt links require a reviewed recovery.", 409);
+          unitId = invoice.unitId; targetId = receipt.id;
+        } else { const expense = findRecord(state.expenses, data.targetId, "Expense"); unitId = expense.unitId; targetId = expense.id; }
+        inScope(current!, unitId);
+      }
+      ensure(data.source === "camera" || data.source === "file" || data.source === "manual", "Choose camera, file or manual evidence.");
+      const fileName = textField(data.fileName, "File name", 160, true), mimeType = textField(data.mimeType, "Media type", 60, true), sha256 = textField(data.sha256, "SHA-256 fingerprint", 64, true).toLowerCase(), byteLength = integer(data.byteLength ?? 0, "Evidence file size", 0, 10_000_000);
+      ensure(!/[\\/\x00-\x1f\x7f]/.test(fileName), "Use a file name without folders or control characters.");
+      if (data.source === "manual") ensure(!fileName && !mimeType && !sha256 && byteLength === 0, "Manual evidence must not claim an image file or fingerprint.");
+      else {
+        ensure(fileName && byteLength > 0 && /^[a-f0-9]{64}$/.test(sha256), "File evidence needs its name, size and SHA-256 fingerprint.");
+        const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+        ensure(imageTypes.includes(mimeType) || (data.source === "file" && mimeType === "application/pdf"), "Use a JPEG, PNG, WebP, HEIC, HEIF or PDF file; camera evidence must be an image.");
+      }
+      const capture: T.ReceiptCapture = { id: id("CAPTURE"), targetType: data.targetType, targetId, unitId, source: data.source, fileName, mimeType, byteLength, sha256, reference: textField(data.reference, "Evidence reference", 180), note: textField(data.note, "Evidence note", 500, true), createdAt: now(), capturedBy: current!.id, storage: "Metadata only" };
+      state.receiptCaptures.unshift(capture); result = capture;
+      message = "Evidence reference and fingerprint saved. The image remains on your device; no OCR, upload or payment was performed."; break;
+    }
     case "hr.employee": { const unit = findRecord(state.units, data.unitId, "Unit"); const employee: T.Employee = { id: id("EMP"), name: textField(data.name, "Employee name", 100), roleTitle: textField(data.roleTitle, "Role title", 120), unitId: unit.id, workEmail: emailField(data.workEmail), startDate: dateField(data.startDate, "Start date"), salary: integer(data.salary, "Sample monthly gross", 0), status: "Onboarding", onboarding: [], createdAt: now() }; ensure(employee.workEmail.endsWith(".test"), "Use an example.test address for synthetic employee records."); ensure(!state.employees.some((e) => e.workEmail === employee.workEmail), "That sample employee email already exists.", 409); state.employees.unshift(employee); result = employee; break; }
     case "hr.onboarding": { const employee = findRecord(state.employees, data.employeeId, "Employee"); const check = textField(data.check, "Onboarding check", 80); ensure(["Identity verification", "Contract review", "Safety induction", "System access review"].includes(check), "Choose a valid onboarding check."); if (!employee.onboarding.includes(check)) employee.onboarding.push(check); employee.status = employee.onboarding.length === 4 ? "Active" : "Onboarding"; result = employee; break; }
     case "hr.leave": { const employee = findRecord(state.employees, data.employeeId, "Employee"); const from = dateField(data.from, "Leave start"), to = dateField(data.to, "Leave end"); ensure(to >= from, "Leave end must be on or after its start."); ensure(!state.leaveRequests.some((r) => r.employeeId === employee.id && r.status !== "Declined" && r.from <= to && r.to >= from), "This employee has an overlapping leave request.", 409); const request: T.LeaveRequest = { id: id("LEAVE"), employeeId: employee.id, from, to, reason: textField(data.reason, "Leave reason", 400), status: "Pending", requestedBy: current!.id, createdAt: now() }; state.leaveRequests.unshift(request); notify(state, "", "Leave request awaiting review", request.id, "hr.leave", "hr-director"); result = request; break; }

@@ -1,5 +1,7 @@
 # Architecture and control boundaries
 
+Current extension (21 October 2026): [inventory and device execution](INVENTORY-EXECUTION.md) adds internal SKU/Code 128 identities, branch stock counts and transfers with independent review, verified unit locations, local receipt OCR/metadata, and protected thermal/A4 receipt printing. The additive normalizer in `lib/server/state-migrations.ts` is applied to persisted state and domain entry points; existing balances, accounts and historical money are retained. Generated OCR runtime assets are pinned, self-hosted and copied during prebuild. See [device integration details](DEVICE-INTEGRATIONS.md) for data handling and hardware limits.
+
 Source review: 18 October 2026. Final build, hosted identity, persistence and browser outcomes remain subject to [current release evidence](../aothothe-pack/09-release-evidence.md). The September browser-memory architecture is historical.
 
 ## Runtime and data flow
