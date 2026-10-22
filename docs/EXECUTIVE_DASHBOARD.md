@@ -8,7 +8,7 @@ Prepared for Fatima Agro Dealers and General Suppliers by Aothothe. Location con
 
 The server-rendered page and the portal API independently enforce the role. Being an administrator, director of another department or customer does not grant this dashboard. Public catalogue and customer responses contain no executive snapshot or decisions.
 
-This delivery does not assign new hosted roles. The initial administrator address remains an administrator. Initial executive access uses the existing, separately reviewed `FATIMA_BOOTSTRAP_CEO_EMAILS` server setting and a verified Sites identity; subsequent changes use the existing independent director approval and administrator application workflow. The operator must use the approved executive account, rather than broadening public access or combining the executive and administrator roles on one account.
+Account update, 22 October 2026: Fatima now uses issued usernames and passwords under developer control. The separate `fatima.ceo` identity opens this dashboard. Self-registration, automated recovery and portal-driven account-role application are disabled for managed accounts. See [Fatima account operation](FATIMA_ACCOUNTS.md); this supersedes the earlier provider bootstrap handover.
 
 ## What the CEO can do
 
@@ -18,7 +18,7 @@ This delivery does not assign new hosted roles. The initial administrator addres
 4. Filter inventory exceptions by operating unit and search by product name or SKU, then review available quantity and the configured reorder level.
 5. Review branch and depot order/task counts, including outstanding and overdue work.
 6. Create a management decision with a department, operating unit, priority, due date and rationale. Record progress or a blocker with a note and reference, then close it with an outcome and supporting evidence.
-7. Review eligible executive access requests and proposed unit activations using the existing approval rules.
+7. Review proposed unit activations using the existing independence rule. Account assignments follow the developer-controlled CEO directive procedure.
 8. Print a board brief using the browser print dialog. The output reflects the records and revision displayed in the dashboard.
 9. Export a CSV board summary with all six monthly flows, departmental counts, inventory exceptions, unit activity and decision status. Text cells escape spreadsheet formula prefixes. The export uses the same aggregate projection as the screen.
 
@@ -50,7 +50,7 @@ This is executive follow-up recorded by the CEO. It does not certify that anothe
 
 ## Existing approval controls
 
-The executive queue shows access requests assigned to the CEO which that CEO is eligible to review. The requester and target account cannot approve their own access. Approving an access request does not apply it: an eligible administrator must perform the existing application step.
+The native account edition keeps account creation, password changes and role assignments under the authorised developer. Managed CEO users do not apply or approve role-change actions through the dashboard. Historical access records may remain visible as evidence.
 
 A proposed operating unit can be activated by a different executive approver from its creator. Ineligible self-created proposals are omitted from the actionable queue, and the server rejects an attempted bypass. Procurement, stock count, transfer and HR approvals continue through their existing authorised reviewers; an executive follow-up decision is not a shortcut.
 

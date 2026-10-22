@@ -16,7 +16,11 @@ The existing React 19/TypeScript interface uses Next-compatible routes compiled 
 
 ## Identity and authorization
 
-Hosted identity comes from trusted Sites identity headers on the configured hostname. Fatima profile registration links a customer record to the provider identity; it does not create a Fatima password or staff role. Password recovery remains with the provider. `HQ_ADMIN_EMAILS` can identify approved initial administrators, but administrator status does not grant routine accounting, HR or executive approval rights. Confirm hosting's trusted-header boundary and sign-in behavior in an authenticated deployment rehearsal.
+Current authentication (22 October 2026) uses Fatima-issued usernames and passwords. This supersedes the earlier provider-linked account design. Public routes accept anonymous visitors; protected pages and APIs resolve an opaque, revocable Fatima session and the current stored role/unit. Provider identity headers do not grant access. The user explicitly requested independent Fatima accounts in place of the hosting skill's default identity integration.
+
+Private credentials, hashed sessions, attempt limits and consumed developer directives use a separate D1 `fatima_auth_state` row. Server-held pepper and bounded account-operation batches are secret runtime bindings. They do not enter the business snapshot, client bundle, source manifest or normal business export. The eight-hour host-only session cookie is Secure, HttpOnly and SameSite=Strict. See [Fatima account operation](FATIMA_ACCOUNTS.md) for provisioning, hashing, replay prevention, recovery and operating limits.
+
+Account creation, password rotation/disabling and role/unit assignment are controlled by the developer against a recorded Fatima management / CEO directive. Managed users cannot self-register, self-recover or apply account-role changes through portal actions. Departmental transaction review controls remain separate.
 
 Local personas require loopback, `FATIMA_LOCAL_DEMO=true` and a sufficiently long local signing secret. Their signed session expires after four hours. `/rehearsal` is local only and exists for synthetic customer/staff scenarios where hosted business roles have not been assigned. These personas assert no real appointment.
 
@@ -37,6 +41,6 @@ Successful mutation/identity audit entries do not constitute immutable logging o
 
 No bank/payment, fiscal/EIS, payroll, carrier or email provider is connected. Bank passwords are never required. Any later integration needs verified company-owned services, reviewed scope, authorization and actual sandbox/production evidence. Real data requires verified identities, privileged MFA policy, robust persistence, audit/retention, backup/restore, legal/privacy decisions and operational handover before use.
 
-## Restricted hosted role bootstrap
+## Historical provider bootstrap
 
-Deployment supports explicit, empty-by-default `FATIMA_BOOTSTRAP_CEO_EMAILS` and `FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS` lists for approved initial business approvers. Configure only distinct, authorized people through protected hosting configuration, never guessed addresses. Each person signs in using their provider identity; verify the granted role and audit record, then remove both bootstrap lists. The grant is recorded once so stale configuration cannot silently undo a later demotion. Removing a bootstrap list does not itself revoke an already assigned role; use the normal independently approved role-change process. No identities are configured by this documentation and hosted bootstrap verification remains pending.
+The previous provider-email bootstrap definitions and tests remain as historical compatibility code. The current hosted session resolver does not use them. Existing provider-linked account IDs and their business records are retained without automatic email matching or reassignment. Any later account-link migration must preserve those identifiers and receive separate review. Native issued accounts use independent stable IDs and explicit developer provisioning.

@@ -38,6 +38,6 @@ const grants: Record<string, PortalRole[]> = {
   "communication.unsubscribe": ["communications", "operations-director"],
 };
 export const allRoles = Object.values(moduleRoles).flat().filter((x, i, xs) => xs.indexOf(x) === i).concat("sales");
-export function capabilities(user: SessionUser | null) { return Object.entries(grants).filter(([, roles]) => user && roles.includes(user.role)).map(([action]) => action); }
+export function capabilities(user: SessionUser | null) { return Object.entries(grants).filter(([, roles]) => user && roles.includes(user.role)).map(([action]) => action).filter(action => !user?.managedAccount || !["customer.register", "admin.roleRequest", "admin.roleDecision", "admin.applyRole", "admin.reset"].includes(action)); }
 export function canPerform(user: SessionUser | null, action: string) { return action === "enquiry.create" || action === "communication.unsubscribe" || capabilities(user).includes(action); }
 export function scopedUnit(user: SessionUser) { return ["branch-manager", "storekeeper", "sales"].includes(user.role) ? user.unitId : null; }

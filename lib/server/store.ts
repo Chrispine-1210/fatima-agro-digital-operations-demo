@@ -3,9 +3,10 @@ import { initialState, type PortalState } from "./seed";
 import { PortalError, ensure } from "./errors";
 import { normalizeState } from "./state-migrations";
 
-type Bindings = { DB?: D1Database; HQ_ADMIN_EMAILS?: string; FATIMA_BOOTSTRAP_CEO_EMAILS?: string; FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS?: string; FATIMA_LOCAL_DEMO?: string; FATIMA_LOCAL_SESSION_SECRET?: string; FATIMA_TRUSTED_HOST?: string };
+type Bindings = { DB?: D1Database; HQ_ADMIN_EMAILS?: string; FATIMA_BOOTSTRAP_CEO_EMAILS?: string; FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS?: string; FATIMA_LOCAL_DEMO?: string; FATIMA_LOCAL_SESSION_SECRET?: string; FATIMA_TRUSTED_HOST?: string; FATIMA_PASSWORD_PEPPER?: string; FATIMA_ACCOUNT_BATCH_1?: string; FATIMA_ACCOUNT_BATCH_2?: string; FATIMA_ACCOUNT_BATCH_3?: string };
 export function bindings(): Bindings { return env as unknown as Bindings; }
 function database() { const db = bindings().DB; ensure(db, "Demonstration storage is unavailable. Please ask the presentation operator to restore the configured database.", 503, "STORAGE_UNAVAILABLE"); return db; }
+export function databaseBinding() { return database(); }
 export async function readState(): Promise<PortalState> {
   const db = database();
   let row: { revision: number; payload: string } | null;

@@ -82,15 +82,15 @@ test("feedback waits for session lookup and keeps the sign-in return destination
   try {
     await page.goto("/reviews");
     await expect(page.locator(".sf-loading").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Sign in or create an account", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Sign in to your account", exact: true })).toHaveCount(0);
   } finally {
     releaseSession();
   }
-  const signIn = page.getByRole("link", { name: "Sign in or create an account", exact: true });
+  const signIn = page.getByRole("link", { name: "Sign in to your account", exact: true });
   await expect(signIn).toBeVisible();
   const target = new URL((await signIn.getAttribute("href"))!, page.url());
-  expect(target.pathname).toBe("/signin-with-chatgpt");
-  expect(target.searchParams.get("return_to")).toBe("/reviews");
+  expect(target.pathname).toBe("/account");
+  expect(target.searchParams.get("returnTo")).toBe("/reviews");
 });
 
 test("feedback sends customers without a profile to profile completion", async ({ page }) => {
@@ -140,15 +140,16 @@ test("review form excludes reviewed orders, requires consent and reflects succes
   await expect(page.getByText("Pending moderation", { exact: true })).toHaveCount(2);
 });
 
-test("session GET accepts the review return route and rejects external destinations", async ({ request }) => {
+test("session GET exposes only the Fatima sign-in entry for all requested destinations", async ({ request }) => {
   for (const [destination, expected] of [["/reviews", "/reviews"], ["//evil.example", "/account"], ["https://evil.example/reviews", "/account"], ["%2F%2Fevil.example", "/account"], ["/%2F%2Fevil.example", "/account"], ["/\\evil.example", "/account"]]) {
     const response = await request.get(`/api/session?returnTo=${encodeURIComponent(destination)}`);
     expect(response.status()).toBe(200);
     const session = await response.json() as SessionResponse;
     const signIn = new URL(session.signInUrl, "https://fatima.example");
     expect(signIn.origin).toBe("https://fatima.example");
-    expect(signIn.pathname).toBe("/signin-with-chatgpt");
-    expect(signIn.searchParams.get("return_to")).toBe(expected);
+    expect(signIn.pathname).toBe("/account");
+    expect(session.authMode).toBe("fatima");
+    expect(signIn.searchParams.get("return_to")).toBeNull();
   }
 });
 

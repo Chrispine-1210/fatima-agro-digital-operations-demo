@@ -14,7 +14,7 @@ test('built browser code excludes database state, private identity and server ro
       else if (/\.(js|html|json)$/.test(item.name)) {
         checked++;
         const source = await readFile(file, 'utf8');
-        assert.doesNotMatch(source, /HQ_ADMIN_EMAILS|FATIMA_BOOTSTRAP_CEO_EMAILS|FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS|FATIMA_LOCAL_SESSION_SECRET|oai-authenticated-user-email|Ussi Jawadu|Confidential commercial draft|INSERT OR IGNORE INTO portal_state/, file);
+        assert.doesNotMatch(source, /HQ_ADMIN_EMAILS|FATIMA_BOOTSTRAP_CEO_EMAILS|FATIMA_BOOTSTRAP_OPERATIONS_DIRECTOR_EMAILS|FATIMA_LOCAL_SESSION_SECRET|FATIMA_PASSWORD_PEPPER|FATIMA_ACCOUNT_BATCH_|fatima_auth_state|PBKDF2-SHA256-HMAC|oai-authenticated-user-email|Ussi Jawadu|Confidential commercial draft|INSERT OR IGNORE INTO portal_state/, file);
       }
     }
   }

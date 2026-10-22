@@ -1,8 +1,52 @@
 import { createLocalToken, localDemoEnabled, requireSameOrigin, sessionUser } from "@/lib/server/auth";
-import { readState } from "@/lib/server/store";
-import { PortalError } from "@/lib/server/errors";
+import { passwordLogin, passwordLogout, sessionCookie } from "@/lib/server/fatima-accounts";
+import { safeReturnPath } from "@/lib/server/password-crypto";
+import { canAccessModule } from "@/lib/server/permissions";
+import { PortalError, ensure } from "@/lib/server/errors";
+import type { ModuleId, SessionUser } from "@/lib/portal-types";
 
-const response = (body: unknown, status = 200, extra: Record<string, string> = {}) => Response.json(body, { status, headers: { "Cache-Control": "no-store", ...extra } });
-function safeReturnPath(request: Request) { const requested = new URL(request.url).searchParams.get("returnTo") ?? "/account"; if (requested.length > 300 || !requested.startsWith("/") || requested.startsWith("//") || requested.includes("\\")) return "/account"; const url = new URL(requested, "https://fatima.invalid"); if (url.origin !== "https://fatima.invalid" || !/^\/(?:hq(?:\/|$)|account(?:\/|$)|products\/|cart$|reviews$)/.test(url.pathname)) return "/account"; return `${url.pathname}${url.search}`; }
-export async function GET(request: Request) { try { const user = await sessionUser(request); const profile = user ? (await readState()).profiles.find((p) => p.id === user.id) : null; const returnTo = safeReturnPath(request); return response({ user, localDemo: localDemoEnabled(request), signInUrl: `/signin-with-chatgpt?return_to=${encodeURIComponent(returnTo)}`, signOutUrl: "/signout-with-chatgpt?return_to=%2F", mode: "captured demonstration", registrationRequired: user?.role === "customer" && !profile }); } catch (error) { const known = error instanceof PortalError; return response({ error: known ? error.message : "Sign-in could not be checked. Try again.", code: known ? error.code : "SESSION", user: null, localDemo: localDemoEnabled(request) }, known ? error.status : 500); } }
-export async function POST(request: Request) { try { requireSameOrigin(request); const data = await request.json() as { action?: string; persona?: string }; if (data.action === "logout") return response({ message: "Local demonstration session signed out. Hosted accounts also use the provider sign-out link." }, 200, { "Set-Cookie": "fatima_local_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" }); const token = await createLocalToken(request, String(data.persona ?? "")); return response({ message: "Local synthetic account opened; this is available only on this computer's loopback server." }, 200, { "Set-Cookie": `fatima_local_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400` }); } catch (error) { const known = error instanceof PortalError; return response({ error: known ? error.message : "The session request could not be read.", code: known ? error.code : "SESSION" }, known ? error.status : 400); } }
+function destination(user: SessionUser, requested: unknown) {
+  const target = safeReturnPath(requested), module = target.split(/[/?]/)[2] as ModuleId;
+  if (user.role === "customer") return target.startsWith("/hq") ? "/account" : target;
+  if (target.startsWith("/hq/") && canAccessModule(user, module)) return target;
+  return user.role === "ceo" ? "/hq/executive" : user.role.startsWith("finance") ? "/hq/finance" : user.role.startsWith("hr") ? "/hq/hr" : user.role === "administrator" ? "/hq/admin" : user.role === "communications" ? "/hq/communications" : "/hq/procurement";
+}
+function failure(error: unknown) { const known = error instanceof PortalError; return Response.json({ error: known ? error.message : "Fatima account access is temporarily unavailable.", code: known ? error.code : "SESSION" }, { status: known ? error.status : 503, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } }); }
+export async function GET(request: Request) {
+  try { const user = await sessionUser(request); return Response.json({ user, localDemo: localDemoEnabled(request), signInUrl: "/account", signOutUrl: "/account", authMode: "fatima", mode: "captured demonstration", registrationRequired: false }, { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } }); }
+  catch (error) { return failure(error); }
+}
+export async function POST(request: Request) {
+  try {
+    ensure((request.headers.get("content-type") ?? "").startsWith("application/json"), "Send a JSON request.", 415);
+    ensure(Number(request.headers.get("content-length") ?? 0) <= 2500, "The sign-in request is too large.", 413);
+    // Drain bounded bodies before an early origin denial so keep-alive requests remain usable.
+    const reader = request.body?.getReader(); const chunks: Uint8Array[] = []; let length = 0;
+    if (reader) { while (true) { const part = await reader.read(); if (part.done) break; length += part.value.byteLength; if (length > 2500) { await reader.cancel(); throw new PortalError("The sign-in request is too large.", 413); } chunks.push(part.value); } }
+    const bytes = new Uint8Array(length); let offset = 0; for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    const raw = new TextDecoder().decode(bytes);
+    requireSameOrigin(request);
+    let data: Record<string, unknown>; try { data = JSON.parse(raw); } catch { throw new PortalError("The sign-in request could not be read."); }
+    ensure(data && typeof data === "object" && !Array.isArray(data), "The sign-in request could not be read.");
+    if (data.action === "logout") {
+      await passwordLogout(request);
+      const headers = new Headers({ "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+      headers.append("Set-Cookie", sessionCookie(request, "", true));
+      headers.append("Set-Cookie", "fatima_local_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0");
+      return Response.json({ message: "Signed out of your Fatima account.", redirectTo: "/account" }, { headers });
+    }
+    if (data.persona && localDemoEnabled(request)) {
+      const token = await createLocalToken(request, String(data.persona));
+      const headers = new Headers({ "Cache-Control": "no-store" });
+      headers.append("Set-Cookie", `fatima_local_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400`);
+      headers.append("Set-Cookie", sessionCookie(request, "", true));
+      return Response.json({ message: "Local synthetic rehearsal account opened." }, { headers });
+    }
+    ensure(data.action === "login", "This account operation is managed by the authorised developer.", 403, "MANAGED_ACCOUNT");
+    const login = await passwordLogin(request, data.username, data.password);
+    const headers = new Headers({ "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+    headers.append("Set-Cookie", sessionCookie(request, login.token));
+    headers.append("Set-Cookie", "fatima_local_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0");
+    return Response.json({ message: "Signed in to Fatima Agro.", user: login.user, redirectTo: destination(login.user, data.returnTo ?? new URL(request.url).searchParams.get("returnTo")) }, { headers });
+  } catch (error) { return failure(error); }
+}

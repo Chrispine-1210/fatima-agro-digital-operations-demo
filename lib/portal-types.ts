@@ -1,8 +1,8 @@
 /** Shared browser/server contract. Every business transaction in this release is a simulation. */
 export type PortalRole = "customer" | "sales" | "storekeeper" | "procurement" | "finance" | "finance-director" | "hr" | "hr-director" | "operations-director" | "branch-manager" | "administrator" | "communications" | "ceo";
 export type ModuleId = "public" | "customer" | "finance" | "hr" | "procurement" | "admin" | "communications" | "notifications" | "executive";
-export type SessionUser = { id: string; name: string; email: string; role: PortalRole; unitId: string; localDemo?: boolean };
-export type SessionResponse = { user: SessionUser | null; localDemo: boolean; signInUrl: string; signOutUrl: string; mode: "captured demonstration"; registrationRequired?: boolean };
+export type SessionUser = { id: string; name: string; email: string; role: PortalRole; unitId: string; localDemo?: boolean; managedAccount?: boolean };
+export type SessionResponse = { user: SessionUser | null; localDemo: boolean; signInUrl: string; signOutUrl: string; mode: "captured demonstration"; registrationRequired?: boolean; authMode?: "fatima" };
 export type Product = { id: string; sku: string; barcode: string; barcodeKind: "Internal Code 128"; name: string; category: string; pack: string; description: string; price: number; stock: number; reorderLevel: number; image: string; imageAlt: string; imageNote: string; taxCode: string; taxRate: number };
 /** Internal planning and tax-reference fields are absent from customer catalogue responses. */
 export type CatalogProduct = Omit<Product, "reorderLevel" | "taxCode" | "sku" | "barcode" | "barcodeKind"> & Partial<Pick<Product, "reorderLevel" | "taxCode" | "sku" | "barcode" | "barcodeKind">>;

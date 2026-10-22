@@ -14,7 +14,7 @@
         "setup:demo": "node scripts/setup-demo.mjs",
         "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern fatima-agro-operations-demo --ignore-pattern node_modules.partial",
         "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
-        "test": "node --experimental-strip-types --test tests/unit.test.mjs tests/portal-domain.test.mjs tests/portal-bootstrap.test.mjs tests/release-boundary.test.mjs tests/inventory-domain.test.mjs tests/executive-domain.test.mjs",
+        "test": "node --experimental-strip-types --test tests/unit.test.mjs tests/portal-domain.test.mjs tests/portal-bootstrap.test.mjs tests/release-boundary.test.mjs tests/inventory-domain.test.mjs tests/executive-domain.test.mjs tests/password-auth.test.mjs",
         "test:release": "node --test tests/release-artifacts.test.mjs",
         "test:components": "playwright test tests/e2e/customer.spec.ts",
         "test:rendered": "playwright test tests/e2e/customer.spec.ts --grep \"public direct routes\"",
