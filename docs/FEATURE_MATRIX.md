@@ -1,9 +1,10 @@
 # Current feature and evidence register
 
-Updated 21 October 2026. [Management release evidence](MANAGEMENT_RELEASE_2026-10-21.md) records current checks; historical presentation records remain in the Aothothe pack. All transactions are synthetic demonstration records.
+Updated 22 October 2026. [Executive release evidence](EXECUTIVE_RELEASE_2026-10-22.md) records the current dashboard and management regression checks; [management release evidence](MANAGEMENT_RELEASE_2026-10-21.md) covers the device delivery. Historical presentation records remain in the Aothothe pack. All transactions are synthetic demonstration records.
 
 | Area | Implemented behavior | Evidence / operating boundary |
 | --- | --- | --- |
+| Executive dashboard | CEO-only financial position and six-month flows, five department workload summaries, unit performance, SKU risk filters, board brief and management decision tracking | Aggregate projection excludes raw private collections. Idempotent/version-guarded follow-up and existing independent approval controls; see [executive evidence](EXECUTIVE_DASHBOARD.md). Hosted CEO appointment remains separately authorized. |
 | Public experience | Photo/vector backgrounds, team actions, location/collection/delivery cards, responsive catalogue and enquiry/feedback states | Nine current public UX scenarios passed; product availability and prices need business confirmation. |
 | Customer identity and orders | Provider-linked profile, cart/checkout, own orders/timeline and own receipt print preview | Ownership/domain checks passed; current receipt refresh/printing browser checks passed. Hosted authenticated role rehearsal remains separate. |
 | Accounting | Invoices, bills, payments/numbered receipts, credits, expenses, statement matching and balanced reports | Source suites passed; receipt/metadata/printing browser evidence current. No bank settlement or fiscal submission. |

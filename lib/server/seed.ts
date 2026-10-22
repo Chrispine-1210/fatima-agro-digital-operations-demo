@@ -3,7 +3,7 @@ import { defaultSku } from "./state-migrations";
 
 export type PortalState = {
   revision: number; users: T.SessionUser[]; profiles: T.CustomerProfile[]; products: T.Product[]; carts: T.CartLine[]; orders: T.Order[]; invoices: T.Invoice[]; suppliers: T.Supplier[]; bills: T.Bill[]; payments: T.Payment[]; receipts: T.Receipt[]; expenses: T.Expense[]; creditNotes: T.CreditNote[]; journals: T.JournalEntry[]; statementLines: T.StatementLine[]; employees: T.Employee[]; leaveRequests: T.LeaveRequest[]; attendance: T.AttendanceEntry[]; payrollPreparations: T.PayrollPreparation[]; purchaseRequests: T.PurchaseRequest[]; purchaseOrders: T.PurchaseOrder[]; goodsReceipts: T.GoodsReceipt[]; stockMovements: T.StockMovement[]; units: T.Unit[]; tasks: T.Task[]; roleRequests: T.RoleRequest[]; notifications: T.Notification[]; campaigns: T.Campaign[]; capturedMessages: T.CapturedMessage[]; audit: T.AuditEvent[]; enquiries: T.Enquiry[]; reviews: T.Review[]; supportRequests: T.SupportRequest[];
-  stockAdjustments: T.StockAdjustment[]; stockTransfers: T.StockTransfer[]; receiptCaptures: T.ReceiptCapture[];
+  stockAdjustments: T.StockAdjustment[]; stockTransfers: T.StockTransfer[]; receiptCaptures: T.ReceiptCapture[]; executiveDecisions: T.ExecutiveDecision[];
   idempotency: { key: string; userId: string; action: string; result: unknown }[]; rateLimits: { key: string; at: string }[]; stockByUnit: Record<string, number>; revokedBefore: Record<string, string>;
 };
 
@@ -22,7 +22,7 @@ export function initialState(): PortalState {
   return { revision: 0, users: [], profiles: [], products, stockByUnit, carts: [], orders: [], invoices: [], suppliers: [], bills: [], payments: [], receipts: [], expenses: [], creditNotes: [], journals: [], statementLines: [], employees: [], leaveRequests: [], attendance: [], payrollPreparations: [], purchaseRequests: [], purchaseOrders: [], goodsReceipts: [], stockMovements: [], units: [
     { id: "HQ", name: "Fatima Agro Head Office", kind: "Headquarters", status: "Active", functions: ["Management", "Finance", "HR", "Procurement", "Security"], evidence: "Presentation headquarters model — operational assignments pending confirmation", createdBy: "system" },
     { id: "BR-DEMO-01", name: "Demonstration branch", kind: "Branch", status: "Active", functions: ["Sales", "Inventory", "Procurement requests", "Tasks", "MRA source evidence"], evidence: "Synthetic branch for presentation only", createdBy: "system" },
-  ], stockAdjustments: [], stockTransfers: [], receiptCaptures: [], tasks: [], roleRequests: [], notifications: [], campaigns: [], capturedMessages: [], audit: [], enquiries: [], reviews: [], supportRequests: [], idempotency: [], rateLimits: [], revokedBefore: {} };
+  ], stockAdjustments: [], stockTransfers: [], receiptCaptures: [], executiveDecisions: [], tasks: [], roleRequests: [], notifications: [], campaigns: [], capturedMessages: [], audit: [], enquiries: [], reviews: [], supportRequests: [], idempotency: [], rateLimits: [], revokedBefore: {} };
 }
 
 export const localPersonas: Record<string, T.SessionUser> = {

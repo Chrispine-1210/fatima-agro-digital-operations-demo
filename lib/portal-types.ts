@@ -1,6 +1,6 @@
 /** Shared browser/server contract. Every business transaction in this release is a simulation. */
 export type PortalRole = "customer" | "sales" | "storekeeper" | "procurement" | "finance" | "finance-director" | "hr" | "hr-director" | "operations-director" | "branch-manager" | "administrator" | "communications" | "ceo";
-export type ModuleId = "public" | "customer" | "finance" | "hr" | "procurement" | "admin" | "communications" | "notifications";
+export type ModuleId = "public" | "customer" | "finance" | "hr" | "procurement" | "admin" | "communications" | "notifications" | "executive";
 export type SessionUser = { id: string; name: string; email: string; role: PortalRole; unitId: string; localDemo?: boolean };
 export type SessionResponse = { user: SessionUser | null; localDemo: boolean; signInUrl: string; signOutUrl: string; mode: "captured demonstration"; registrationRequired?: boolean };
 export type Product = { id: string; sku: string; barcode: string; barcodeKind: "Internal Code 128"; name: string; category: string; pack: string; description: string; price: number; stock: number; reorderLevel: number; image: string; imageAlt: string; imageNote: string; taxCode: string; taxRate: number };
@@ -47,7 +47,37 @@ export type Enquiry = { id: string; customerId: string; unitId: string; name: st
 export type Review = { id: string; customerId: string; name: string; orderId: string; rating: number; text: string; publicationConsent: boolean; status: "Pending moderation" | "Published" | "Declined"; createdAt: string };
 export type SupportRequest = { id: string; customerId: string; unitId: string; subject: string; message: string; status: "Open" | "Answered"; response?: string; respondedBy?: string; createdAt: string };
 export type FinanceReports = { receivables: number; payables: number; cash: number; revenue: number; taxLiability: number; expenses: number; customerPayments: number; supplierPayments: number; credits: number; debits: number; journalCredits: number; balanced: boolean };
+export type ExecutiveDepartment = "finance" | "hr" | "operations" | "communications" | "administration";
+export type ExecutiveDecisionStatus = "Open" | "In progress" | "Blocked" | "Completed" | "Cancelled";
+/** CEO-recorded follow-up. This record never authorizes finance, HR, stock or access transactions. */
+export type ExecutiveDecision = {
+  id: string; title: string; rationale: string; department: ExecutiveDepartment; unitId: string; dueDate: string;
+  priority: "Normal" | "High" | "Critical"; status: ExecutiveDecisionStatus; version: number;
+  createdAt: string; createdBy: string; updatedAt: string; closedAt?: string; closedBy?: string;
+  progress: { id: string; at: string; actorId: string; note: string; evidence: string; status: ExecutiveDecisionStatus }[];
+};
+export type ExecutiveSnapshot = {
+  asOf: string;
+  finance: {
+    allTime: FinanceReports;
+    months: { month: string; revenue: number; expenses: number; customerReceipts: number; supplierPayments: number; netCashMovement: number }[];
+    receivables: { outstanding: number; overdue: number; overdueCount: number };
+    /** Bills currently have no contractual due date. Aging is not an overdue assertion. */
+    payables: { outstanding: number; aged30Days: number; aged30DaysCount: number; dueDateUnavailableCount: number };
+  };
+  departments: { id: ExecutiveDepartment; name: string; metrics: { label: string; value: number }[]; attentionCount: number; attentionLabel: string; evidence: string }[];
+  inventory: { activeUnits: number; trackedSkus: number; lowStockCount: number; outOfStockCount: number; risks: { unitId: string; unitName: string; productId: string; sku: string; name: string; available: number; reorderLevel: number; severity: "Out of stock" | "Low stock" }[] };
+  units: { id: string; name: string; kind: Unit["kind"]; status: Unit["status"]; orders: number; openOrders: number; completedOrders: number; orderValue: number; tasksOpen: number; tasksSubmitted: number; tasksApproved: number; tasksOverdue: number }[];
+  decisions: ExecutiveDecision[];
+  decisionCounts: { open: number; blocked: number; completed: number; overdue: number };
+  approvals: {
+    roleRequests: { id: string; role: PortalRole; unitId: string; unitName: string; applicantId: string; applicantName: string; reason: string; createdAt: string }[];
+    units: { id: string; name: string; kind: Unit["kind"]; functions: string[]; evidence: string }[];
+  };
+  controls: { pendingCounts: number; pendingTransfers: number; pendingPurchaseRequests: number; pendingLeaveRequests: number; unmatchedStatementLines: number };
+};
 export type PortalSnapshot = {
+  executive?: ExecutiveSnapshot;
   module: ModuleId; mode: "captured demonstration"; revision: number; products?: CatalogProduct[]; profile?: CustomerProfile | null; profiles?: CustomerProfile[]; cart?: CartLine[]; orders?: Order[]; invoices?: Invoice[]; bills?: Bill[]; payments?: Payment[]; receipts?: Receipt[]; expenses?: Expense[]; creditNotes?: CreditNote[]; journals?: JournalEntry[]; statementLines?: StatementLine[]; reports?: FinanceReports;
   suppliers?: Supplier[]; purchaseRequests?: PurchaseRequest[]; purchaseOrders?: PurchaseOrder[]; goodsReceipts?: GoodsReceipt[]; stockMovements?: StockMovement[]; stockBalances?: StockBalance[]; stockAdjustments?: StockAdjustment[]; stockTransfers?: StockTransfer[]; transferDestinations?: Pick<Unit, "id" | "name" | "kind">[]; receiptCaptures?: ReceiptCapture[]; receiptDocuments?: ReceiptDocument[]; employees?: Employee[]; leaveRequests?: LeaveRequest[]; attendance?: AttendanceEntry[]; payrollPreparations?: PayrollPreparation[]; units?: Unit[]; tasks?: Task[]; roleRequests?: RoleRequest[]; users?: SessionUser[]; notifications?: Notification[]; campaigns?: Campaign[]; capturedMessages?: CapturedMessage[]; audit?: AuditEvent[]; capabilities?: string[]; enquiries?: Enquiry[]; reviews?: Review[]; supportRequests?: SupportRequest[]; featureStatus?: { feature: string; status: string; detail: string }[];
 };

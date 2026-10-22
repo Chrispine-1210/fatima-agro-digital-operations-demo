@@ -4,7 +4,7 @@ import { requirePortalPage } from "@/lib/server/auth";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Internal workspace | Fatima Agro", robots: { index: false, follow: false } };
-const modules = ["finance", "hr", "procurement", "admin", "communications", "notifications"] as const;
+const modules = ["executive", "finance", "hr", "procurement", "admin", "communications", "notifications"] as const;
 
 export default async function InternalModulePage({ params }: { params: Promise<{ module: string }> }) {
   const { module } = await params;

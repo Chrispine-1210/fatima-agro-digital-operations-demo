@@ -4,7 +4,7 @@ const moduleRoles: Record<ModuleId, PortalRole[]> = {
   public: [], customer: ["customer"], finance: ["finance", "finance-director"], hr: ["hr", "hr-director"],
   procurement: ["procurement", "storekeeper", "operations-director", "branch-manager", "finance-director", "sales"],
   admin: ["administrator", "operations-director", "branch-manager", "ceo", "finance-director", "hr-director"],
-  communications: ["communications", "operations-director"], notifications: [],
+  communications: ["communications", "operations-director"], notifications: [], executive: ["ceo"],
 };
 export function canAccessModule(user: SessionUser | null, module: ModuleId) {
   if (module === "public") return true;
@@ -13,6 +13,7 @@ export function canAccessModule(user: SessionUser | null, module: ModuleId) {
   return moduleRoles[module]?.includes(user.role) ?? false;
 }
 const grants: Record<string, PortalRole[]> = {
+  "executive.decisionCreate": ["ceo"], "executive.decisionProgress": ["ceo"], "executive.decisionClose": ["ceo"],
   "customer.register": ["customer"], "customer.updateProfile": ["customer"], "customer.consent": ["customer"], "cart.set": ["customer"], checkout: ["customer"],
   "review.create": ["customer"], "review.moderate": ["communications", "operations-director"], "support.create": ["customer"],
   "order.status": ["sales", "operations-director", "branch-manager"],

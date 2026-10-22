@@ -4,7 +4,7 @@ import { localDemoEnabled, requireSameOrigin, sessionUser } from "@/lib/server/a
 import { mutateState, readState } from "@/lib/server/store";
 import { PortalError, ensure } from "@/lib/server/errors";
 
-const modules: ModuleId[] = ["public", "customer", "finance", "hr", "procurement", "admin", "communications", "notifications"];
+const modules: ModuleId[] = ["public", "customer", "executive", "finance", "hr", "procurement", "admin", "communications", "notifications"];
 const response = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
 function failed(error: unknown) { const known = error instanceof PortalError; if (!known) console.error("Portal request failed without committing a response", error); return response({ error: known ? error.message : "The request could not be completed. Refresh and try again.", code: known ? error.code : "INTERNAL" }, known ? error.status : 500); }
 export async function GET(request: Request) { try { const selectedModule = (new URL(request.url).searchParams.get("module") ?? "public") as ModuleId; ensure(modules.includes(selectedModule), "Unknown workspace.", 404); const user = selectedModule === "public" ? null : await sessionUser(request); const state = await readState(); const effectiveUser = user ? state.users.find((u) => u.id === user.id) ?? null : null; return response(snapshot(state, effectiveUser, selectedModule)); } catch (error) { return failed(error); } }

@@ -12,9 +12,9 @@ export function defaultSku(productId: string) {
 /** Additive migration only. Existing financial, stock, account and location values are never reseeded. */
 export function normalizeState(input: PortalState): PortalState {
   const state = structuredClone(input);
-  for (const key of ["stockAdjustments", "stockTransfers", "receiptCaptures"] as const) {
+  for (const key of ["stockAdjustments", "stockTransfers", "receiptCaptures", "executiveDecisions"] as const) {
     if (state[key] === undefined) state[key] = [];
-    ensure(Array.isArray(state[key]), "Stored inventory records require a reviewed recovery.", 503, "STORAGE_INVALID");
+    ensure(Array.isArray(state[key]), "Stored operational records require a reviewed recovery.", 503, "STORAGE_INVALID");
   }
   const owners = new Map<string, string>();
   for (const product of state.products) {

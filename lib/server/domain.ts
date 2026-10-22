@@ -3,6 +3,7 @@ import { capabilities, canAccessModule, canPerform, scopedUnit, allRoles } from 
 import { ensure, integer, textField, emailField, dateField } from "./errors";
 import { initialState, type PortalState } from "./seed";
 import { normalizeState } from "./state-migrations";
+import { executiveSnapshot, applyExecutiveAction } from "./executive";
 
 type Data = Record<string, unknown>;
 const now = () => new Date().toISOString();
@@ -73,6 +74,7 @@ export function snapshot(original: PortalState, user: T.SessionUser | null, modu
   const base: T.PortalSnapshot = { module, mode: "captured demonstration", revision: state.revision, capabilities: capabilities(user) };
   if (module === "public") return { ...base, products: catalogProducts(state), reviews: state.reviews.filter((r) => r.status === "Published").map((r) => ({ ...r, customerId: "", orderId: "" })), capabilities: ["enquiry.create"] };
   const current = user!;
+  if (module === "executive") return { ...base, executive: executiveSnapshot(state, current, financeReports(state)) };
   const ownNotifications = state.notifications.filter((notification) => canReadNotification(current, notification));
   if (module === "notifications") return { ...base, notifications: ownNotifications, capturedMessages: state.capturedMessages.filter((m) => m.userId === current.id) };
   if (module === "customer") return { ...base, products: catalogProducts(state), profile: state.profiles.find((p) => p.id === current.id) ?? null, cart: state.carts.filter((c) => c.customerId === current.id), orders: state.orders.filter((o) => o.customerId === current.id), invoices: state.invoices.filter((i) => i.customerId === current.id), receipts: state.receipts.filter((r) => r.customerId === current.id), receiptDocuments: receiptDocuments(state, current.id), notifications: ownNotifications, enquiries: state.enquiries.filter((e) => e.customerId === current.id), reviews: state.reviews.filter((r) => r.customerId === current.id), supportRequests: state.supportRequests.filter((s) => s.customerId === current.id) };
@@ -101,7 +103,7 @@ export function applyAction(original: PortalState, user: T.SessionUser | null, a
   let result: unknown = null;
   let target = "";
   let message = "Demonstration record saved.";
-  const idempotent = ["checkout", "finance.payment", "procurement.receive", "inventory.adjustmentRequest", "inventory.adjustmentDecision", "inventory.transferRequest", "inventory.transferDecision", "finance.receiptCapture"].includes(action);
+  const idempotent = ["checkout", "finance.payment", "procurement.receive", "inventory.adjustmentRequest", "inventory.adjustmentDecision", "inventory.transferRequest", "inventory.transferDecision", "finance.receiptCapture", "executive.decisionCreate", "executive.decisionProgress", "executive.decisionClose"].includes(action);
   let key = "";
   if (idempotent) {
     key = validIdempotency(data.idempotencyKey);
@@ -120,6 +122,13 @@ export function applyAction(original: PortalState, user: T.SessionUser | null, a
     }
   }
   switch (action) {
+    case "executive.decisionCreate":
+    case "executive.decisionProgress":
+    case "executive.decisionClose": {
+      result = applyExecutiveAction(state, current!, action, data);
+      message = "CEO management follow-up recorded. Departmental approvals and transaction permissions are unchanged.";
+      break;
+    }
     case "customer.register": {
       ensure(!state.profiles.some((p) => p.id === current!.id), "Your profile already exists.", 409);
       const profile: T.CustomerProfile = { id: current!.id, name: textField(data.name ?? current!.name, "Name", 100), email: current!.email.toLowerCase(), phone: textField(data.phone, "Phone", 40, true), address: textField(data.address, "Address", 400, true), marketingConsent: data.marketingConsent === true, unsubscribed: false, createdAt: now() };

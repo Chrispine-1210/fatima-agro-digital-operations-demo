@@ -1,5 +1,9 @@
 # Architecture and control boundaries
 
+Executive extension (21 October 2026): the CEO-only `/hq/executive` workspace projects financial summaries, six monthly financial flows, departmental workload counts, active inventory-unit SKU risks and operating-unit status totals from the existing records. `lib/server/executive.ts` explicitly selects aggregate fields; raw HR, customer and campaign collections are excluded. `/hq` routes an approved CEO directly to this view. Other staff retain their existing workspaces.
+
+Management decisions are CEO-recorded follow-up entries with accountable department/unit, priority, due date, progress evidence and a versioned closure history. Creation and updates use idempotency keys; stale versions are rejected. This register does not approve payments, payroll, stock or access. Eligible existing CEO access and unit-activation reviews retain independent review and application rules. The additive decision-array migration preserves existing state. See [executive dashboard](EXECUTIVE_DASHBOARD.md) for metric definitions, use and access setup.
+
 Current extension (21 October 2026): [inventory and device execution](INVENTORY-EXECUTION.md) adds internal SKU/Code 128 identities, branch stock counts and transfers with independent review, verified unit locations, local receipt OCR/metadata, and protected thermal/A4 receipt printing. The additive normalizer in `lib/server/state-migrations.ts` is applied to persisted state and domain entry points; existing balances, accounts and historical money are retained. Generated OCR runtime assets are pinned, self-hosted and copied during prebuild. See [device integration details](DEVICE-INTEGRATIONS.md) for data handling and hardware limits.
 
 Source review: 18 October 2026. Final build, hosted identity, persistence and browser outcomes remain subject to [current release evidence](../aothothe-pack/09-release-evidence.md). The September browser-memory architecture is historical.
