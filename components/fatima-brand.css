@@ -1,0 +1,34 @@
+/* Supplied Fatima identity: preserve proportions, clear space and readable text. */
+.fatima-brand{--fatima-logo-green:#1d8428;display:flex;align-items:center;gap:13px;min-width:0;text-align:left;line-height:1.25;white-space:normal}
+.fatima-brand .fatima-brand__logo{display:block;flex:0 0 auto;width:66px;height:66px;max-width:none;object-fit:contain;background:#fff;border-radius:50%}
+.fatima-brand__copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fatima-brand .fatima-brand__name{display:block;font:700 24px/1.15 Arial,Helvetica,sans-serif;letter-spacing:-.045em;color:#163f2c}
+.fatima-brand .fatima-brand__descriptor{display:block;font:500 9px/1.45 Arial,Helvetica,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#526653}
+.fatima-brand .fatima-brand__tagline{display:block;font:400 10px/1.45 Arial,Helvetica,sans-serif;letter-spacing:0;color:#496149}
+.sf-header .sf-brand{flex-shrink:0}
+.sf-header .fatima-brand{gap:11px}
+.sf-header .fatima-brand__logo{width:62px;height:62px}
+.sf-header{padding-top:17px;padding-bottom:17px}
+.sf-footer .fatima-brand{align-items:center;gap:14px}
+.sf-footer .fatima-brand__logo{width:86px;height:86px;border-radius:4px;padding:5px}
+.sf-footer .fatima-brand__name{font-size:23px;color:#fff}
+.sf-footer .fatima-brand__descriptor{max-width:160px;color:#d2e0d0}
+.sf-footer .fatima-brand__tagline{max-width:180px;color:#d2e0d0}
+.ip-brand .fatima-brand{gap:11px}
+.ip-brand .fatima-brand__logo{width:48px;height:48px;padding:3px}
+.ip-brand .fatima-brand__name{font-size:19px;color:#fff}
+.ip-brand .fatima-brand__descriptor{font-size:9px;line-height:1.5;letter-spacing:0;text-transform:none;color:#c8dbc9}
+.fa-login .fatima-brand{margin-bottom:26px;gap:17px}
+.fa-login .fatima-brand__logo{width:84px;height:84px;border-radius:0}
+.fa-login .fatima-brand__name{font-size:26px}
+.fa-login .fatima-brand__descriptor{max-width:220px}
+.fa-login .fatima-brand__tagline{font-size:10px}
+.receipt-sheet .receipt-logo{display:block;width:22mm;height:22mm;margin:0 auto 3mm;object-fit:contain;filter:grayscale(1)}
+.receipt-sheet .receipt-logo[hidden]{display:none}
+.receipt-paper-58 .receipt-logo{width:19mm;height:19mm}
+.receipt-paper-A4 .receipt-logo{width:25mm;height:25mm}
+@media(max-width:1150px) and (min-width:761px){.ip-brand .fatima-brand__logo{width:40px;height:40px}.ip-brand .fatima-brand__name{font-size:17px}.ip-brand .fatima-brand{gap:8px}}
+@media(max-width:1100px){.sf-header .fatima-brand__tagline{display:none}.sf-header .fatima-brand__logo{width:54px;height:54px}.sf-header .fatima-brand__name{font-size:22px}}
+@media(max-width:560px){.sf-header .fatima-brand{gap:8px}.sf-header .fatima-brand__logo{width:44px;height:44px}.sf-header .fatima-brand__name{font-size:19px}.sf-header .fatima-brand__descriptor{font-size:8px;max-width:153px;letter-spacing:.015em}.sf-header{gap:12px}.sf-header-actions{gap:10px}.fa-login .fatima-brand{gap:12px}.fa-login .fatima-brand__logo{width:70px;height:70px}.fa-login .fatima-brand__name{font-size:23px}.fa-login .fatima-brand__descriptor{font-size:8px}.fa-login .fatima-brand__tagline{font-size:9px}}
+@media(max-width:360px){.sf-header .fatima-brand__descriptor{max-width:125px}.sf-header .fatima-brand__logo{width:38px;height:38px}.sf-header .fatima-brand__name{font-size:17px}.sf-header-actions{gap:7px}}
+@media print{.receipt-sheet .receipt-logo{filter:grayscale(1);print-color-adjust:exact;-webkit-print-color-adjust:exact}}

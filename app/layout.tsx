@@ -7,6 +7,7 @@ import "@/components/inventory-tools.css";
 import "@/components/receipt-tools.css";
 import "@/components/executive-dashboard.css";
 import "@/components/fatima-sign-in.css";
+import "@/components/fatima-brand.css";
 
 export const metadata: Metadata = {
   title: "Fatima Agro | Farm Inputs and Customer Services",
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
     title: "Fatima Agro | Farm Inputs and Customer Services",
     description: "Product catalogue, customer enquiries and role-based operations portal concept. Synthetic demonstration data only.",
   },
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: { icon: "/favicon.svg?v=fatima-fa", shortcut: "/favicon.svg?v=fatima-fa" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { FatimaBrand } from "./fatima-brand";
 import { InventoryTools, UnitLocationTools } from "./inventory-tools";
 import { ReceiptTools } from "./receipt-tools";
 import { ExecutiveDashboard } from "./executive-dashboard";
@@ -241,7 +242,7 @@ export default function InternalPortal({ module, initialUser }: { module: Intern
   return <div className="ip-shell">
     <a className="ip-skip-link" href="#main-content">Skip to workspace</a>
     <aside className="ip-sidebar">
-      <Link href="/hq" className="ip-brand"><span className="ip-brand-mark">FA</span><span><strong>Fatima Agro</strong><small>Headquarters · Core system</small></span></Link>
+      <Link href="/hq" className="ip-brand"><FatimaBrand variant="portal" /></Link>
       <p className="ip-nav-label">Organisation workspace</p>
       <nav aria-label="Internal workspaces">{Object.entries(moduleInfo).filter(([key, item]) => key === "notifications" || item.roles.includes(user.role)).map(([key, item]) => <Link key={key} href={key === "notifications" ? (user.role === "ceo" ? "/hq/notifications" : "/hq") : `/hq/${key}`} aria-current={key === module ? "page" : undefined}><span>{key === "notifications" && user.role === "ceo" ? "Notifications" : item.title}</span><span aria-hidden="true">{key === module ? "●" : "↗"}</span></Link>)}</nav>
       <div className="ip-sidebar-bottom"><p>Access is scoped to your role and operating unit.</p><span className="ip-unit-badge">{user.unitId}</span><Link href="/">Public website ↗</Link></div>
