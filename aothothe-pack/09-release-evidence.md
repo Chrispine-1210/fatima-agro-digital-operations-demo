@@ -1,5 +1,7 @@
 # Release-candidate evidence
 
+Historical record for 19 October 2026. Current account policy and hosted role access are documented in [Fatima account operation](../docs/FATIMA_ACCOUNTS.md); current customer/department/executive improvements are in [the 23 October system upgrade](../docs/SYSTEM_UPGRADE_2026-10-23.md). Earlier provider-host and unassigned-executive statements below describe that historical candidate only.
+
 Delivery owner: Chrispine. Automated verification recorded Monday, 19 October 2026 (Africa/Blantyre); human business acceptance is not implied. All three local browser journeys and isolated recovery passed. Publication identity and its outcome are recorded separately in the delivered release manifest after source finalisation.
 
 ## Release identity and environment

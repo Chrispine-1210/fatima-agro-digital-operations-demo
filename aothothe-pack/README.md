@@ -1,5 +1,7 @@
 # Aothothe presentation and handover pack
 
+Current operating edition: **23 October 2026**. Read [the system upgrade and execution record](../docs/SYSTEM_UPGRADE_2026-10-23.md), [Fatima-owned account procedures](../docs/FATIMA_ACCOUNTS.md) and [current feature evidence](../docs/FEATURE_MATRIX.md). The numbered pack retains dated presentation material; its earlier provider-login and unassigned-executive descriptions are superseded by the current account edition.
+
 Reviewed 19 October 2026 (Africa/Blantyre) for Aothothe's Fatima Agro meeting on Monday, 19 October 2026. Internal presentation preparation and delivery documents; these files are not public website content. Chrispine Mndala is accountable for the delivery. Wilson Chipeta's contribution is proposed. The additional specialist position is vacant. The Fatima CEO has no preparation or delivery tasks.
 
 | Document | Purpose |
@@ -15,7 +17,7 @@ Reviewed 19 October 2026 (Africa/Blantyre) for Aothothe's Fatima Agro meeting on
 | [09 Release evidence record](09-release-evidence.md) | Completion record for actual checks, logs, screenshots and remaining issues. |
 | [10 Milestones and methods](10-milestones-and-methods.md) | Work covered, technical skills/methods, source evidence and remaining gates. |
 
-The supplied address is configured as the initial hosted system administrator only. Its first provider sign-in remains unverified. An independent executive approver remains unassigned; use the local fictional approvers until authorized assignments are verified. Administrator access does not grant executive approval authority.
+Thirteen Fatima-issued presentation identities now cover the CEO, departments and a sample customer. Account provisioning, password rotation and role/unit assignment are developer controlled under Fatima management / CEO directives. The confidential password register and encrypted developer vault remain outside this source pack and public assets. Administrator access does not grant executive approval authority. Operator assignments and real staff appointments require Fatima management confirmation.
 
 This pack distinguishes implemented code, tested behavior, simulated transactions, dependencies and planned work. A feature's presence in source is not a test pass. The release evidence record is authoritative for checks actually completed on the final revision. Do not describe fiscal invoices, payments, payroll, messages or delivery as live unless that integration has separate verified evidence.
 

@@ -1,5 +1,7 @@
 # Fatima Agro Digital Operations Demonstration
 
+Current operating edition: **23 October 2026**. Open [Fatima Agro](https://fatima-agro-operations-demo.chrispine-ala.chatgpt.site) or [Fatima account sign-in](https://fatima-agro-operations-demo.chrispine-ala.chatgpt.site/account). See [the current system upgrade](docs/SYSTEM_UPGRADE_2026-10-23.md) and [account procedures](docs/FATIMA_ACCOUNTS.md). Earlier presentation dates below retain their historical scope.
+
 Presentation preparation reviewed **18 October 2026** for the CEO and shareholder meeting on **Monday, 19 October 2026**. Aothothe's delivery lead is Chrispine Mndala, Founder, CTO and Lead Systems Architecture Engineer, using the title supplied in the project request. Wilson Chipeta's contribution is proposed and the additional specialist position is vacant.
 
 This is a synthetic-data demonstration for Fatima Agro Dealers and General Suppliers, with the client-pack location reference Kanengo, Lilongwe. Prices, stock, customers, staff, transactions and operating units are examples. No signed commercial package, verified product offer, company appointment or production approval is asserted.
@@ -9,20 +11,22 @@ This is a synthetic-data demonstration for Fatima Agro Dealers and General Suppl
 | Area | Source capability; final verification is recorded separately |
 | --- | --- |
 | Public website | Catalogue, search and filters, product details, enquiries, buying guides, image credits, contact, privacy and terms. Internal workspaces and private executive information are excluded from customer navigation. |
-| Customer account | Provider-backed identity, Fatima customer profile creation and preferences, cart, demonstration checkout, own orders and notifications, support and feedback. Fatima does not issue or store a separate customer password. |
+| Customer account | Developer-issued Fatima username/password, prepared customer profile, searchable own orders and preferences, saved cart quantities, demonstration checkout, own notifications, support and feedback. No provider sign-in, public registration or automated recovery. |
+| Staff usability | Searchable/sortable/paginated registers, status filters, authorised filtered CSV, department section/action navigation, scoped work queues and notification filters, offline/freshness/retry states. |
+| Executive workbench | CEO-only financial summaries, department and unit activity, evidence-based attention queues, filtered decisions and reviewed stock-risk follow-up drafts. |
 | Accounting | Invoices, supplier bills, captured payments and receipts, expenses, credit notes, statement lines, independent reconciliation and ledger-derived reports. |
 | HR | Synthetic employees, onboarding, leave and independent decisions, attendance and payroll preparation. |
 | Procurement | Suppliers, purchase requests, separate approval, purchase orders, partial goods receipts, inventory movements and linked supplier bills. |
-| Administration | Operating units, function boundaries, role requests and decisions, task evidence and audit records. These model proposed company controls rather than confirmed appointments. |
+| Administration | Operating units, function boundaries, task evidence and audit records. Account creation, password rotation and access assignments are developer controlled under recorded Fatima management / CEO directives; the administrator cannot issue accounts. No staff appointment is implied. |
 | Notifications and campaigns | In-application events and captured email previews/messages, consent filtering, unsubscribe, duplicate prevention and manually processed due schedules. No external email is sent. |
 
-Read [the feature register](docs/FEATURE_MATRIX.md), [architecture](docs/ARCHITECTURE.md) and [current release evidence](aothothe-pack/09-release-evidence.md). Source availability is not a test pass. Final browser, deployment and recovery evidence is pending until entered in that record.
+Read [the feature register](docs/FEATURE_MATRIX.md), [architecture](docs/ARCHITECTURE.md) and [current upgrade evidence](docs/SYSTEM_UPGRADE_2026-10-23.md). The Aothothe pack retains dated historical release records. Exact publication and source identities are recorded in the external release manifest after deployment.
 
 ## Customer identity and internal rehearsal
 
-On the configured host, the customer signs in through the identity provider and creates a Fatima profile linked to that identity. Account creation or recovery at the provider belongs to the provider's own supported flow; an authenticated hosted rehearsal remains a release check. New customer registration grants no internal role. Initial administrator configuration is separate from business approval authority.
+The host uses thirteen issued Fatima presentation identities for the CEO, departments and customer demonstration. Passwords are individually generated and handed over in a confidential register outside source and public assets. The developer provisions, rotates, disables and assigns access under a recorded Fatima management / CEO directive. Existing issued credentials remain valid through this system upgrade. See [account operation](docs/FATIMA_ACCOUNTS.md).
 
-Local rehearsal provides fictional customer and staff personas only on loopback, with explicit local configuration and a signed four-hour session. It is the presentation path for internal roles that have no confirmed hosted assignment. `/rehearsal` does not grant access on the hosted site. The executive approval persona is operated by Aothothe and does not create a real executive account or assign preparation work to the Fatima CEO.
+Local rehearsal provides fictional customer and staff personas only on loopback, with explicit local configuration and a signed four-hour session. `/rehearsal` does not grant access on the hosted site. Native account browser acceptance uses a separate ignored environment file and QA database; it does not reset the prior business rehearsal database. Presentation role identities do not appoint real staff.
 
 ## Exact local setup
 
@@ -34,6 +38,7 @@ $fatimaRuntime = 'C:\Users\dell\Desktop\Fatima_Agro_Digital_Transformation_Compl
 $fatimaNode = Join-Path $fatimaRuntime 'node.exe'
 $env:Path = "$fatimaRuntime;$env:Path"
 & $fatimaNode --version
+& $fatimaNode 'scripts/prepare-ocr-assets.mjs'
 & $fatimaNode 'node_modules/vinext/dist/cli.js' build
 & $fatimaNode 'scripts/setup-demo.mjs'
 & $fatimaNode 'scripts/start-demo.mjs'
