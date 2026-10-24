@@ -103,11 +103,41 @@ test("preserves separate host-only session and expiry cookies including an Expir
   assert.deepEqual(response.headers.getSetCookie(), cookies);
 });
 
-test("fails closed for Domain cookies and malformed __Host session cookie attributes", async () => {
+test("ignores upstream infrastructure and tracking cookies while preserving separate application cookies", async () => {
+  const cookies = [
+    "__Host-fatima_session=token; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400; Secure",
+    "fatima_local_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+  ];
+  const headers = new Headers();
+  headers.append("Set-Cookie", "__cf_bm=upstream-bot-cookie; Domain=.chatgpt.site; HttpOnly; Secure; SameSite=None; Path=/");
+  headers.append("Set-Cookie", cookies[0]);
+  headers.append("Set-Cookie", "tracking=not-an-application-cookie; Domain=.upstream.example; Path=/");
+  headers.append("Set-Cookie", cookies[1]);
+  headers.append("Set-Cookie", "fatima_session=local-rehearsal; HttpOnly; SameSite=Strict; Path=/");
+  const response = await createProxy(env, async () => new Response("Fatima page", { headers }))(request());
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "Fatima page");
+  assert.deepEqual(response.headers.getSetCookie(), cookies);
+});
+
+test("forwards only the production Fatima session cookie and omits an unrelated cookie header", async () => {
+  const received = [];
+  const proxy = createProxy(env, async (_url, init) => { received.push(init.headers.get("Cookie")); return new Response("ok"); });
+  await proxy(request("/api/session", { headers: { Cookie: "__cf_bm=foreign; analytics=secret; __Host-fatima_session=native-token; fatima_local_session=rehearsal; fatima_session=insecure" } }));
+  await proxy(request("/products", { headers: { Cookie: "__cf_bm=foreign; analytics=secret; fatima_local_session=rehearsal" } }));
+  assert.deepEqual(received, ["__Host-fatima_session=native-token", null]);
+});
+
+test("fails closed for domain-scoped or malformed application cookies", async () => {
   for (const cookie of [
-    "session=token; Domain=.example; Secure", "__Host-fatima_session=token; HttpOnly; SameSite=Strict; Path=/",
+    "__Host-fatima_session=token; Domain=.example; Secure; HttpOnly; SameSite=Strict; Path=/",
+    "__Host-fatima_session=token; HttpOnly; SameSite=Strict; Path=/",
     "__Host-fatima_session=token; Secure; SameSite=Strict; Path=/", "__Host-fatima_session=token; Secure; HttpOnly; Path=/",
     "__Host-fatima_session=token; Secure; HttpOnly; SameSite=Strict; Path=/hq",
+    "fatima_local_session=; Domain=.example; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+    "fatima_local_session=rehearsal; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400",
+    "fatima_local_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400",
+    "fatima_local_session=; SameSite=Strict; Path=/; Max-Age=0",
   ]) {
     const response = await createProxy(env, async () => new Response("ok", { headers: { "Set-Cookie": cookie } }))(request());
     assert.equal(response.status, 502, cookie);

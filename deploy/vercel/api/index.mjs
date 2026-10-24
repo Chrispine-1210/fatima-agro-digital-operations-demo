@@ -1,6 +1,6 @@
 /** Vercel gateway. Cloudflare remains the application runtime and database owner. */
 const REQUEST_HEADERS = [
-  "accept", "accept-language", "cache-control", "content-type", "cookie",
+  "accept", "accept-language", "cache-control", "content-type",
   "if-match", "if-none-match", "if-modified-since", "if-unmodified-since",
   "range", "if-range", "user-agent", "sec-fetch-site", "sec-fetch-mode", "sec-fetch-dest",
   "rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch",
@@ -36,14 +36,28 @@ function rewrittenLocation(value, upstreamUrl, publicOrigin) {
     ? `${publicOrigin}${location.pathname}${location.search}${location.hash}`
     : value;
 }
+const APPLICATION_COOKIES = new Set(["__Host-fatima_session", "fatima_local_session"]);
+function cookieName(cookie) {
+  const equals = cookie.indexOf("=");
+  return equals < 0 ? "" : cookie.slice(0, equals).trim();
+}
+function productionSessionCookie(value) {
+  // The production backend recognises only the secure native session, never local rehearsal cookies.
+  return (value ?? "").split(";").map(cookie => cookie.trim())
+    .filter(cookie => cookieName(cookie) === "__Host-fatima_session").join("; ");
+}
 function validCookie(cookie) {
   // Fatima uses host-only cookies. Never widen a cookie's scope on the gateway.
   if (/(?:^|;)\s*domain\s*=/i.test(cookie)) return false;
-  if (!cookie.startsWith("__Host-fatima_session=")) return true;
-  return /;\s*secure(?:;|$)/i.test(cookie)
-    && /;\s*httponly(?:;|$)/i.test(cookie)
+  const name = cookieName(cookie);
+  const common = /;\s*httponly(?:;|$)/i.test(cookie)
     && /;\s*samesite=strict(?:;|$)/i.test(cookie)
     && /;\s*path=\/(?:;|$)/i.test(cookie);
+  if (name === "__Host-fatima_session") return common && /;\s*secure(?:;|$)/i.test(cookie);
+  // Production emits the local cookie solely to clear an old rehearsal session.
+  return name === "fatima_local_session" && common
+    && cookie.slice(cookie.indexOf("=") + 1).split(";", 1)[0].trim() === ""
+    && /;\s*max-age=0(?:;|$)/i.test(cookie);
 }
 
 /** Injected transport keeps security and byte-preservation tests independent of hosting. */
@@ -75,6 +89,10 @@ export function createProxy(env, fetcher = globalThis.fetch) {
       const value = request.headers.get(name);
       if (value !== null) headers.set(name, value);
     }
+    if (!connectionHeaders.has("cookie")) {
+      const cookie = productionSessionCookie(request.headers.get("cookie"));
+      if (cookie) headers.set("Cookie", cookie);
+    }
     // Validation precedes translation. No forwarded/identity headers are trusted.
     if (origin === publicUrl.origin) headers.set("Origin", upstreamOrigin);
     const init = { method: request.method, headers, redirect: "manual", signal: AbortSignal.any([request.signal, AbortSignal.timeout(45_000)]) };
@@ -84,7 +102,9 @@ export function createProxy(env, fetcher = globalThis.fetch) {
     catch { return failure(502, "Fatima is temporarily unavailable. Please try again.", "UPSTREAM_UNAVAILABLE"); }
     try {
       const responseHeaders = new Headers(upstream.headers);
-      const cookies = upstream.headers.getSetCookie();
+      // Upstream infrastructure cookies (for example __cf_bm) belong to its own
+      // hostname. They must neither break delivery nor be reissued on this host.
+      const cookies = upstream.headers.getSetCookie().filter(cookie => APPLICATION_COOKIES.has(cookieName(cookie)));
       if (!cookies.every(validCookie)) {
         await upstream.body?.cancel();
         return failure(502, "Fatima account delivery requires developer review.", "UPSTREAM_COOKIE");
