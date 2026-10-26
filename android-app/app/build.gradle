@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.application'
+}
+
+def signingPath = System.getenv('FATIMA_ANDROID_KEYSTORE')
+def signingPassword = System.getenv('FATIMA_ANDROID_STORE_PASSWORD')
+def signingKeyAlias = System.getenv('FATIMA_ANDROID_KEY_ALIAS')
+def signingKeyPassword = System.getenv('FATIMA_ANDROID_KEY_PASSWORD')
+def releaseSigningReady = [signingPath, signingPassword, signingKeyAlias, signingKeyPassword].every { it }
+def releaseRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
+if (releaseRequested && !releaseSigningReady) {
+    throw new GradleException('Release signing requires the four documented FATIMA_ANDROID signing environment variables. No unsigned release is produced.')
+}
+
+android {
+    namespace 'com.fatimaagro.app'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.fatimaagro.app'
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            if (releaseSigningReady) {
+                storeFile file(signingPath)
+                storeType 'PKCS12'
+                storePassword signingPassword
+                keyAlias signingKeyAlias
+                keyPassword signingKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
+}
+

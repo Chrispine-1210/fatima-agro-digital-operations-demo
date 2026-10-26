@@ -1,0 +1,12 @@
+.gradle/
+**/build/
+local.properties
+*.jks
+*.keystore
+*.p12
+*.properties.private
+*.dpapi
+*.apk
+*.aab
+!signing/fatima-agro-release-certificate.pem
+

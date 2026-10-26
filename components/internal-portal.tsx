@@ -245,7 +245,7 @@ export default function InternalPortal({ module, initialUser }: { module: Intern
       <Link href="/hq" className="ip-brand"><FatimaBrand variant="portal" /></Link>
       <p className="ip-nav-label">Organisation workspace</p>
       <nav aria-label="Internal workspaces">{Object.entries(moduleInfo).filter(([key, item]) => key === "notifications" || item.roles.includes(user.role)).map(([key, item]) => <Link key={key} href={key === "notifications" ? (user.role === "ceo" ? "/hq/notifications" : "/hq") : `/hq/${key}`} aria-current={key === module ? "page" : undefined}><span>{key === "notifications" && user.role === "ceo" ? "Notifications" : item.title}</span><span aria-hidden="true">{key === module ? "●" : "↗"}</span></Link>)}</nav>
-      <div className="ip-sidebar-bottom"><p>Access is scoped to your role and operating unit.</p><span className="ip-unit-badge">{user.unitId}</span><Link href="/">Public website ↗</Link></div>
+      <div className="ip-sidebar-bottom"><p>Access is scoped to your role and operating unit.</p><span className="ip-unit-badge">{user.unitId}</span><Link href="/install">Install the Fatima app ↗</Link><Link href="/">Public website ↗</Link></div>
     </aside>
     <div className="ip-main">
       <header className="ip-topbar"><span className="ip-demo-badge">Demonstration environment</span><div><span>{user.name}<small>{user.role.replaceAll("-", " ")} · {user.unitId}</small></span><Link className="ip-account-link" href="/account">Account</Link><button className="ip-account-link" type="button" onClick={signOut} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out"}</button></div></header>

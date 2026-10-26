@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Fatima Agro",
+  "short_name": "Fatima Agro",
+  "description": "Farm inputs, customer accounts and authorised Fatima Agro workspaces.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/account",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f3",
+  "theme_color": "#1d8428",
+  "categories": ["business", "shopping"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/app-icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

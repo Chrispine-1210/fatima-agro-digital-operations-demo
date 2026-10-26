@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.fatimaagro.app",
+      "sha256_cert_fingerprints": [
+        "CA:88:1A:31:04:A5:A2:B6:FB:CF:97:94:C7:3E:28:31:E3:1A:62:D6:C1:3E:23:12:43:9B:9F:C0:70:46:8C:44"
+      ]
+    }
+  }
+]
