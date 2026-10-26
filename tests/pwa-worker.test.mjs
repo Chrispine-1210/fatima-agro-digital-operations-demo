@@ -7,8 +7,8 @@ const root = new URL("../", import.meta.url);
 const source = await readFile(new URL("public/sw.js", root), "utf8");
 const offlineHTML = await readFile(new URL("public/offline.html", root), "utf8");
 const origin = "https://fatima-app.example";
-const offlineURL = `${origin}/offline.html`;
-const cacheName = "fatima-public-offline-v1";
+const offlineURL = `${origin}/offline`;
+const cacheName = "fatima-public-offline-v2";
 
 function worker(fetcher) {
   const listeners = new Map(), stores = new Map(), calls = { fetch: [], puts: [], deleted: [], skipWaiting: 0, claim: 0 };

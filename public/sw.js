@@ -1,7 +1,8 @@
 /* Cache only the public, identity-free offline screen. Bump this version when it changes. */
 const OFFLINE_CACHE_PREFIX = "fatima-public-offline-";
-const OFFLINE_CACHE = `${OFFLINE_CACHE_PREFIX}v1`;
-const OFFLINE_URL = new URL("/offline.html", self.location.origin).href;
+const OFFLINE_CACHE = `${OFFLINE_CACHE_PREFIX}v2`;
+// Cloudflare serves HTML assets at their extensionless canonical URL.
+const OFFLINE_URL = new URL("/offline", self.location.origin).href;
 const OFFLINE_MARKER = 'data-fatima-offline="v1"';
 
 self.addEventListener("install", event => {
